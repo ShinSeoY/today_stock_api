@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: wj-kpi
+  profiles:
+    active: prod
+    include:
+      - kafka
