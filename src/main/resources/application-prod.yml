@@ -11,37 +11,7 @@ spring:
     show-sql: false
     properties:
       hibernate:
-        format_sql: true
-        jdbc:
-          batch_size: 500
-        order_inserts: true
-        order_updates: true
-        batch_versioned_data: true
+        dialect: org.hibernate.dialect.MySQLDialect
 
   kafka:
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
-    client-id: ${SPRING_KAFKA_CLIENT_ID}
-    consumer:
-      group-id: wj-kpi-v1.0.0
-      auto-offset-reset: earliest #earliest #latest
-      enable-auto-commit: false
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
-    listener:
-      ack-mode: manual
-    properties:
-      schema.registry.url: ${SPRING_KAFKA_PROPERTIES_SCHEMA_REGISTRY_URL}
-      basic.auth.credentials.source: USER_INFO
-      basic.auth.user.info: ${SPRING_KAFKA_PROPERTIES_SCHEMA_REGISTRY_BASIC_AUTH_USER_INFO}
-      auto.register.schemas: true
-      avro.remove.java.properties: true
-      security:
-        protocol: SASL_SSL
-      sasl:
-        mechanism: PLAIN
-        jaas:
-          config: org.apache.kafka.common.security.plain.PlainLoginModule required username='${CLUSTER_API_KEY}' password='${CLUSTER_API_SECRET}';
-
-batch:
-  size: ${BATCH_SIZE}
-
