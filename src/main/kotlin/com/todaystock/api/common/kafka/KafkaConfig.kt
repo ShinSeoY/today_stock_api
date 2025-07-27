@@ -1,16 +1,17 @@
 package com.todaystock.api.common.kafka
 
-import org.apache.kafka.common.serialization.StringSerializer
 import org.apache.kafka.clients.producer.ProducerConfig
+import org.apache.kafka.common.serialization.StringSerializer
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.kafka.core.*
 
 @Configuration
-class KafkaConfig (
+class KafkaConfig(
     @Value("\${spring.kafka.bootstrap-servers}")
-    private val bootstrapServers: String ){
+    private val bootstrapServers: String,
+) {
     @Bean
     fun producerFactory(): ProducerFactory<String, String> {
         val configProps: MutableMap<String, Any?> = HashMap()
