@@ -2,7 +2,12 @@ package com.todaystock.api.entity
 import jakarta.persistence.*
 
 @Entity
-@Table(name = "member")
+@Table(
+    name = "member",
+    uniqueConstraints = [
+        UniqueConstraint(columnNames = ["email", "provider"]),
+    ],
+)
 class Member(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -13,9 +18,17 @@ class Member(
     var picture: String? = null,
     @Enumerated(EnumType.STRING)
     var role: Role = Role.USER,
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    var provider: AuthProvider = AuthProvider.GOOGLE,
 )
 
 enum class Role {
     USER,
     ADMIN,
+}
+
+enum class AuthProvider {
+    GOOGLE,
+    KAKAO,
 }

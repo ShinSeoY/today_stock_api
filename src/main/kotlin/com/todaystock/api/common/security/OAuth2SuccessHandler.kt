@@ -1,9 +1,11 @@
 package com.todaystock.api.common.security
 
 import com.todaystock.api.common.utils.JwtUtil
+import com.todaystock.api.entity.AuthProvider
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.security.core.Authentication
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler
 import org.springframework.stereotype.Component
 
@@ -17,10 +19,16 @@ class OAuth2SuccessHandler(
         authentication: Authentication,
     ) {
         val oauth2User = authentication.principal as org.springframework.security.oauth2.core.user.OAuth2User
-        val email = oauth2User.getAttribute<String>("email") ?: "unknown@example.com"
-        val token = jwtUtil.generateToken(email)
 
-        // Vue 페이지로 토큰 전달
+        val email = oauth2User.getAttribute<String>("email") ?: "unknown@example.com"
+
+        val oauthToken = authentication as OAuth2AuthenticationToken
+        val registrationId = oauthToken.authorizedClientRegistrationId.uppercase()
+
+        val provider = AuthProvider.valueOf(registrationId)
+
+        val token = jwtUtil.generateToken(email, provider)
+
         response.sendRedirect("http://localhost:5173/stock-alert?token=$token")
     }
 }
