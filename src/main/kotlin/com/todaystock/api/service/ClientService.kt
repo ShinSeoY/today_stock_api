@@ -1,7 +1,9 @@
 package com.todaystock.api.service
 
+import com.nimbusds.oauth2.sdk.auth.verifier.InvalidClientException
 import com.todaystock.api.service.dto.DomesticStockPollingResponse
 import com.todaystock.api.service.dto.NaverStockSearchResponse
+import com.todaystock.api.service.dto.StockPollingResponse
 import com.todaystock.api.service.dto.WorldStockPollingResponse
 import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.stereotype.Service
@@ -32,32 +34,39 @@ class ClientService (
             .awaitSingle()
     }
 
-    suspend fun getDomesticStockDetail(code: String): DomesticStockPollingResponse {
+    suspend fun getStockDetail(subUrl: String): StockPollingResponse {
         val uri = UriComponentsBuilder
-            .fromUriString("https://polling.finance.naver.com/api/realtime/domestic/stock/${code}")
+            .fromUriString("https://polling.finance.naver.com/api/realtime${cleanUrlPath(subUrl)}")
             .build()
             .toUri()
 
-        return naverWebClient.build()
-            .get()
-            .uri(uri)
-            .retrieve()
-            .bodyToMono(DomesticStockPollingResponse::class.java)
-            .awaitSingle()
+        return when {
+            subUrl.contains("domestic") ->
+                naverWebClient.build()
+                .get()
+                .uri(uri)
+                .retrieve()
+                .bodyToMono(DomesticStockPollingResponse::class.java)
+                .awaitSingle()
+            subUrl.contains("worldstock") ->
+                naverWebClient.build()
+                    .get()
+                    .uri(uri)
+                    .retrieve()
+                    .bodyToMono(WorldStockPollingResponse::class.java)
+                    .awaitSingle()
+            else -> throw InvalidClientException("url is not in domestic or woldstock")
+
+        }
     }
 
-    suspend fun getWorldStockDetail(code: String): WorldStockPollingResponse {
-        val uri = UriComponentsBuilder
-            .fromUriString("https://polling.finance.naver.com/api/realtime/worldstock/stock/${code}")
-            .build()
-            .toUri()
-
-        return naverWebClient.build()
-            .get()
-            .uri(uri)
-            .retrieve()
-            .bodyToMono(WorldStockPollingResponse::class.java)
-            .awaitSingle()
+    private fun cleanUrlPath(subUrl: String): String {
+        return if (subUrl.endsWith("/total")) {
+            subUrl.removeSuffix("/total")
+        } else {
+            subUrl
+        }
     }
+
 
 }

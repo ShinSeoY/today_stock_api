@@ -1,144 +1,149 @@
 package com.todaystock.api.service.dto
 
 data class NaverStockSearchResponse(
-    val isSuccess: Boolean,
-    val detailCode: String,
-    val message: String,
-    val result: Result
+    val isSuccess: Boolean? = null,
+    val detailCode: String? = null,
+    val message: String? = null,
+    val result: Result? = null,
 )
 
 data class Result(
     val query: String,
     val totalCount: Int,
     val items: List<Item>,
-    val tabsCheck: TabsCheck
+    val tabsCheck: TabsCheck? = null,
 )
 
 data class Item(
-    val code: String,
-    val name: String,
-    val typeCode: String,
-    val typeName: String,
-    val url: String,
-    val reutersCode: String,
-    val nationCode: String,
-    val nationName: String,
-    val category: String
+    val code: String? = null,
+    val name: String? = null,
+    val typeCode: String? = null,
+    val typeName: String? = null,
+    val url: String? = null,
+    val reutersCode: String? = null,
+    val nationCode: String? = null,
+    val nationName: String? = null,
+    val category: String? = null,
 )
 
 data class TabsCheck(
-    val existsStock: Boolean,
-    val existsIpo: Boolean,
-    val existsCoin: Boolean,
-    val existsIndex: Boolean,
-    val existsMarketIndicator: Boolean
+    val existsStock: Boolean? = null,
+    val existsIpo: Boolean? = null,
+    val existsCoin: Boolean? = null,
+    val existsIndex: Boolean? = null,
+    val existsMarketIndicator: Boolean? = null,
 )
 
 
 data class PriceComparison(
-    val code: String,
-    val text: String,
-    val name: String
+    val code: String? = null,
+    val text: String? = null,
+    val name: String? = null,
 )
 
 data class TradeStopType(
-    val code: String,
-    val text: String,
-    val name: String
+    val code: String? = null,
+    val text: String? = null,
+    val name: String? = null,
 )
+
+sealed class StockPollingResponse {
+    abstract val pollingInterval: Int
+    abstract val time: String
+}
 
 data class DomesticStockPollingResponse(
-    val pollingInterval: Int,
+    override val pollingInterval: Int,
     val datas: List<DomesticStockData>,
-    val time: String
-)
+    override val time: String
+) : StockPollingResponse()
 
 data class DomesticStockData(
-    val itemCode: String,
-    val stockName: String,
-    val stockExchangeType: StockExchangeType,
-    val closePrice: String,
-    val compareToPreviousClosePrice: String,
-    val compareToPreviousPrice: PriceComparison,
-    val fluctuationsRatio: String,
-    val tradeStopType: TradeStopType,
-    val openPrice: String,
-    val highPrice: String,
-    val lowPrice: String,
-    val accumulatedTradingVolume: String,
-    val accumulatedTradingValue: String,
-    val marketStatus: String,
-    val localTradedAt: String,
-    val overMarketPriceInfo: OverMarketPriceInfo,
-    val isinCode: String,
-    val myDataCode: String?,
-    val stockEndUrl: String?,
-    val symbolCode: String,
-    val currencyType: CurrencyType
+    val itemCode: String? = null,
+    val stockName: String? = null,
+    val stockExchangeType: StockExchangeType? = null,
+    val closePrice: String? = null,
+    val compareToPreviousClosePrice: String? = null,
+    val compareToPreviousPrice: PriceComparison? = null,
+    val fluctuationsRatio: String? = null,
+    val tradeStopType: TradeStopType? = null,
+    val openPrice: String? = null,
+    val highPrice: String? = null,
+    val lowPrice: String? = null,
+    val accumulatedTradingVolume: String? = null,
+    val accumulatedTradingValue: String? = null,
+    val marketStatus: String? = null,
+    val localTradedAt: String? = null,
+    val overMarketPriceInfo: OverMarketPriceInfo? = null,
+    val isinCode: String? = null,
+    val myDataCode: String? = null,
+    val stockEndUrl: String? = null,
+    val symbolCode: String? = null,
+    val currencyType: CurrencyType? = null,
 )
 
 data class WorldStockPollingResponse(
-    val pollingInterval: Int,
+    override val pollingInterval: Int,
     val datas: List<WorldStockData>,
-    val time: String
-)
+    override val time: String
+) : StockPollingResponse()
 
 data class WorldStockData(
-    val reutersCode: String,
-    val stockName: String,
-    val symbolCode: String,
-    val stockExchangeType: StockExchangeType,
-    val closePrice: String,
-    val compareToPreviousClosePrice: String,
-    val compareToPreviousPrice: PriceComparison,
-    val fluctuationsRatio: String,
-    val tradeStopType: TradeStopType,
-    val openPrice: String,
-    val highPrice: String,
-    val lowPrice: String,
-    val accumulatedTradingVolume: String,
-    val accumulatedTradingValue: String,
-    val localTradedAt: String,
-    val marketStatus: String,
-    val overMarketPriceInfo: OverMarketPriceInfo,
-    val currencyType: CurrencyType,
-    val isinCode: String,
-    val myDataCode: String?,
-    val stockEndUrl: String?,
-    val marketValueFull: String,
-    val marketValueHangeul: String,
-    val marketValueKrwHangeul: String
+    val reutersCode: String? = null,
+    val stockName: String? = null,
+    val symbolCode: String? = null,
+    val stockExchangeType: StockExchangeType? = null,
+    val closePrice: String? = null,
+    val compareToPreviousClosePrice: String? = null,
+    val compareToPreviousPrice: PriceComparison? = null,
+    val fluctuationsRatio: String? = null,
+    val tradeStopType: TradeStopType? = null,
+    val openPrice: String? = null,
+    val highPrice: String? = null,
+    val lowPrice: String? = null,
+    val accumulatedTradingVolume: String? = null,
+    val accumulatedTradingValue: String? = null,
+    val localTradedAt: String? = null,
+    val marketStatus: String? = null,
+    val overMarketPriceInfo: OverMarketPriceInfo? = null,
+    val currencyType: CurrencyType? = null,
+    val isinCode: String? = null,
+    val myDataCode: String? = null,
+    val stockEndUrl: String? = null,
+    val marketValueFull: String? = null,
+    val marketValueHangeul: String? = null,
+    val marketValueKrwHangeul: String? = null,
 )
 
 data class OverMarketPriceInfo(
-    val tradingSessionType: String,
-    val overMarketStatus: String,
-    val overPrice: String,
-    val compareToPreviousPrice: PriceComparison,
-    val compareToPreviousClosePrice: String,
-    val fluctuationsRatio: String,
-    val localTradedAt: String,
-    val tradeStopType: TradeStopType? = null // 국내는 필수, 해외는 optional
+    val tradingSessionType: String? = null,
+    val overMarketStatus: String? = null,
+    val overPrice: String? = null,
+    val compareToPreviousPrice: PriceComparison? = null,
+    val compareToPreviousClosePrice: String? = null,
+    val fluctuationsRatio: String? = null,
+    val localTradedAt: String? = null,
+    val tradeStopType: TradeStopType? = null
 )
 
 data class CurrencyType(
-    val code: String,
-    val text: String,
-    val name: String
+    val code: String? = null,
+    val text: String? = null,
+    val name: String? = null,
 )
 
 data class StockExchangeType(
-    val code: String,
-    val zoneId: String,
-    val nationType: String,
-    val delayTime: Int,
-    val startTime: String,
-    val endTime: String,
-    val closePriceSendTime: String,
-    val nameKor: String,
-    val nameEng: String,
-    val nationCode: String,
-    val nationName: String,
-    val stockType: String,
-    val name: String
+    val code: String? = null,
+    val zoneId: String? = null,
+    val nationType: String? = null,
+    val delayTime: Int? = null,
+    val startTime: String? = null,
+    val endTime: String? = null,
+    val closePriceSendTime: String? = null,
+    val nameKor: String? = null,
+    val nameEng: String? = null,
+    val nationCode: String? = null,
+    val nationName: String? = null,
+    val stockType: String? = null,
+    val name: String? = null,
 )
