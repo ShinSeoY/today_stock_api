@@ -1,5 +1,7 @@
 package com.todaystock.api.controller
 
+import com.todaystock.api.dto.common.ApiResponse
+import com.todaystock.api.dto.request.AlimRequestDto
 import com.todaystock.api.entity.Member
 import com.todaystock.api.service.MemberService
 import org.springframework.http.ResponseEntity
@@ -10,19 +12,21 @@ import org.springframework.web.bind.annotation.*
 class MemberController(
     private val memberService: MemberService,
 ) {
-    @GetMapping("/alim")
-    fun getAlimList(
+    @GetMapping("/alarm")
+    fun getAlarmList(
         @CurrentUser member: Member,
-    ): ResponseEntity<String> {
+    ): ApiResponse<Unit> {
         println("요청한 사용자 이메일: ${member.email}")
-        return ResponseEntity.ok("메시지 전송 완료")
+        memberService.getAlarmList(member)
+        return ApiResponse.success(Unit)
     }
 
-    @PostMapping("/alim")
-    fun postAlim(
+    @PostMapping("/alarm")
+    fun saveAlarm(
         @CurrentUser member: Member,
-    ): ResponseEntity<String> {
-        println("요청한 사용자 이메일: ${member.email}")
-        return ResponseEntity.ok("메시지 전송 완료")
+        @RequestParam dto: AlimRequestDto
+    ): ApiResponse<String> {
+        memberService.saveAlarm(member, dto)
+        return ApiResponse.success("ok")
     }
 }
