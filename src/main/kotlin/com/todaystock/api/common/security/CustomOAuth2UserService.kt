@@ -2,6 +2,7 @@ package com.todaystock.api.common.security
 
 import com.todaystock.api.entity.AuthProvider
 import com.todaystock.api.entity.Member
+import com.todaystock.api.entity.MemberId
 import com.todaystock.api.repository.MemberRepository
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest
@@ -39,14 +40,16 @@ class CustomOAuth2UserService(
             }
 
         val member =
-            memberRepository.findByEmailAndProvider(email, provider)
+            memberRepository.findByMemberId(
+                MemberId(email, provider),
+            )
                 ?: memberRepository.save(
-                    Member(email = email, name = name, picture = picture, provider = provider),
+                    Member(memberId = MemberId(email, provider), name = name, picture = picture),
                 )
 
         return DefaultOAuth2User(
             setOf(),
-            mapOf("email" to member.email),
+            mapOf("email" to member.memberId.email),
             "email",
         )
     }

@@ -1,6 +1,7 @@
 package com.todaystock.api.common.security
 
 import com.todaystock.api.common.utils.JwtUtil
+import com.todaystock.api.entity.AuthProvider
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -21,12 +22,15 @@ class JwtAuthenticationFilter(
         val authHeader = request.getHeader("Authorization")
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             val token = authHeader.substring(7)
-            val email = jwtUtil.getEmailFromToken(token)
-            val principal = customUserDetailsService.loadUserByUsername(email)
+            val (email, providerName) = jwtUtil.getEmailAndProviderFromToken(token)
+            val provider = AuthProvider.valueOf(providerName)
+
+            val principal = customUserDetailsService.loadUserById(email, provider)
             val authentication = UsernamePasswordAuthenticationToken(principal, null, principal.authorities)
             authentication.details = WebAuthenticationDetailsSource().buildDetails(request)
             SecurityContextHolder.getContext().authentication = authentication
         }
+
         filterChain.doFilter(request, response)
     }
 }

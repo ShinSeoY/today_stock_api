@@ -15,7 +15,7 @@ class WebClientConfig {
             .defaultHeader("priority", "u=1, i")
             .defaultHeader(
                 "sec-ch-ua",
-                "\"Google Chrome\";v=\"137\", \"Chromium\";v=\"137\", \"Not/A)Brand\";v=\"24\""
+                "\"Google Chrome\";v=\"137\", \"Chromium\";v=\"137\", \"Not/A)Brand\";v=\"24\"",
             )
             .defaultHeader("sec-ch-ua-mobile", "?0")
             .defaultHeader("sec-ch-ua-platform", "macOS")
@@ -24,7 +24,7 @@ class WebClientConfig {
             .defaultHeader("sec-fetch-site", "same-site")
             .defaultHeader(
                 "user-agent",
-                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36",
             )
     }
 }

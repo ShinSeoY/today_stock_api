@@ -26,14 +26,13 @@ data class Item(
 //    val category: String? = null,
 )
 
-//data class TabsCheck(
+// data class TabsCheck(
 //    val existsStock: Boolean? = null,
 //    val existsIpo: Boolean? = null,
 //    val existsCoin: Boolean? = null,
 //    val existsIndex: Boolean? = null,
 //    val existsMarketIndicator: Boolean? = null,
-//)
-
+// )
 
 data class PriceComparison(
     val code: String? = null,
@@ -47,18 +46,17 @@ data class TradeStopType(
     val name: String? = null,
 )
 
-
-data class StockPollingResponse (
+data class StockPollingResponse(
     val pollingInterval: Int,
     val datas: List<StockData>,
     val time: String,
 )
 
-//data class DomesticStockPollingResponse(
+// data class DomesticStockPollingResponse(
 //    override val pollingInterval: Int,
 //    override val datas: List<DomesticStockData>,
 //    override val time: String
-//) : StockPollingResponse
+// ) : StockPollingResponse
 
 data class StockData(
     val itemCode: String? = null,
@@ -85,13 +83,13 @@ data class StockData(
 //    val currencyType: CurrencyType? = null,
 )
 
-//data class WorldStockPollingResponse(
+// data class WorldStockPollingResponse(
 //    override val pollingInterval: Int,
 //    val datas: List<WorldStockData>,
 //    override val time: String
-//) : StockPollingResponse()
+// ) : StockPollingResponse()
 
-//data class WorldStockData(
+// data class WorldStockData(
 //    val reutersCode: String? = null,
 //    val stockName: String? = null,
 //    val closePrice: String? = null,
@@ -114,9 +112,9 @@ data class StockData(
 //    val marketValueFull: String? = null,
 //    val marketValueHangeul: String? = null,
 //    val marketValueKrwHangeul: String? = null,
-//)
+// )
 
-//data class OverMarketPriceInfo(
+// data class OverMarketPriceInfo(
 //    val tradingSessionType: String? = null,
 //    val overMarketStatus: String? = null,
 //    val overPrice: String? = null,
@@ -125,15 +123,15 @@ data class StockData(
 //    val fluctuationsRatio: String? = null,
 //    val localTradedAt: String? = null,
 //    val tradeStopType: TradeStopType? = null
-//)
+// )
 //
-//data class CurrencyType(
+// data class CurrencyType(
 //    val code: String? = null,
 //    val text: String? = null,
 //    val name: String? = null,
-//)
+// )
 //
-//data class StockExchangeType(
+// data class StockExchangeType(
 //    val code: String? = null,
 //    val zoneId: String? = null,
 //    val nationType: String? = null,
@@ -147,4 +145,4 @@ data class StockData(
 //    val nationName: String? = null,
 //    val stockType: String? = null,
 //    val name: String? = null,
-//)
+// )

@@ -1,16 +1,13 @@
 package com.todaystock.api.repository
 
-import com.todaystock.api.entity.AuthProvider
 import com.todaystock.api.entity.Member
+import com.todaystock.api.entity.MemberId
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface MemberRepository : JpaRepository<Member, String> {
-    fun findByEmail(email: String): Member?
+interface MemberRepository : JpaRepository<Member, MemberId> {
+    fun findByMemberId(memberId: MemberId): Member?
 
-    fun findByEmailAndProvider(
-        email: String,
-        provider: AuthProvider,
-    ): Member?
+    fun findByMemberIdEmail(email: String): Member?
 }

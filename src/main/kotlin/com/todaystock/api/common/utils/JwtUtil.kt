@@ -24,10 +24,16 @@ class JwtUtil {
             .compact()
     }
 
-    fun getEmailFromToken(token: String): String {
-        return Jwts.parserBuilder().setSigningKey(key).build()
-            .parseClaimsJws(token)
-            .body
-            .subject
+    fun getEmailAndProviderFromToken(token: String): Pair<String, String> {
+        val claims =
+            Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .body
+
+        val email = claims.subject
+        val provider = claims["provider"] as String
+        return email to provider
     }
 }
