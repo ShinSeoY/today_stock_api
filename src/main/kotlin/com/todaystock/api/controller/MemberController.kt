@@ -1,5 +1,8 @@
 package com.todaystock.api.controller
 
+import com.todaystock.api.dto.common.ApiResponse
+import com.todaystock.api.dto.request.AlimRequestDto
+import com.todaystock.api.entity.Member
 import com.todaystock.api.service.MemberService
 import org.springframework.web.bind.annotation.*
 
@@ -17,12 +20,18 @@ class MemberController(
 //        return ApiResponse.success(Unit)
 //    }
 //
-//    @PostMapping("/alarm")
-//    fun saveAlarm(
-//        @CurrentUser member: Member,
-//        @RequestParam dto: AlimRequestDto
-//    ): ApiResponse<String> {
-//        memberService.saveAlarm(member, dto)
-//        return ApiResponse.success("ok")
-//    }
+    @PostMapping("/alarm")
+    fun saveAlarm(
+    @CurrentUser member: Member,
+    @RequestBody dto: AlimRequestDto
+    ): ApiResponse<String> {
+        return try {
+            println(member.memberId.email)
+            memberService.saveAlarm(member, dto)
+            ApiResponse.success("ok")
+        }catch (e: Exception){
+            e.printStackTrace()
+            ApiResponse.error("500", e.message ?: "error")
+        }
+    }
 }

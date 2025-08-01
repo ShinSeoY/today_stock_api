@@ -2,20 +2,27 @@ package com.todaystock.api.entity
 import jakarta.persistence.*
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
+import java.io.Serializable
 import java.time.LocalDateTime
+
+@Embeddable
+data class AlarmId(
+    val memberEmail: String,
+    @Enumerated(EnumType.STRING)
+    var memberProvider: AuthProvider,
+    val code: String,
+) : Serializable
 
 @Entity
 @Table(name = "alarm")
 class Alarm(
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0,
+    @EmbeddedId
+    val alarmId: AlarmId,
     @Column(nullable = false)
     var email: String,
-    @Column(nullable = false)
-    var code: String,
-    var price: Double,
-    var condition: Condition = Condition.LTE,
+    var price: Double?,
+    var conditionType: ConditionType = ConditionType.LTE,
+    var url: String,
     var enable: Boolean = false,
     @CreatedDate
     var createdAt: LocalDateTime = LocalDateTime.now(),
@@ -29,7 +36,7 @@ class Alarm(
     val member: Member,
 )
 
-enum class Condition {
+enum class ConditionType {
     LTE,
     GTE,
 }

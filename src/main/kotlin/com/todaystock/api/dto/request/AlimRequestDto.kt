@@ -1,9 +1,15 @@
 package com.todaystock.api.dto.request
 
 data class AlimRequestDto(
-    val code: String,
+    val stock: Stock,
     val requestEmail: String,
-    val price: Double,
+    val currentPrice: Double,
+    val requestPrice: Double?,
     val percent: Double?,
-    val condition: String?,
+    val condition: String,
+)
+
+data class Stock(
+    val code: String,
+    val url : String
 )
