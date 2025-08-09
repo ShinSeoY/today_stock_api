@@ -1,12 +1,12 @@
 package com.todaystock.api.service
 
-import com.todaystock.api.dto.DetailResponseDto
-import com.todaystock.api.dto.SearchResponseDto
+import com.todaystock.api.dto.response.DetailResponseDto
+import com.todaystock.api.dto.response.SearchResponseDto
 import com.todaystock.api.dto.request.AlimRequestDto
+import com.todaystock.api.dto.request.SearchRequestDto
 import com.todaystock.api.entity.*
 import com.todaystock.api.repository.AlarmRepository
 import com.todaystock.api.repository.RedisRepository
-import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Service
 
 @Service
@@ -49,10 +49,9 @@ class MemberService(
     }
 
     suspend fun getSearchList(
-        keyword: String,
-        page: Int?,
+        dto: SearchRequestDto
     ): List<SearchResponseDto> {
-        val res = clientService.searchStock(keyword, page)
+        val res = clientService.searchStock(dto.keyword!!, dto.page)
         return res?.result?.items?.map {
             SearchResponseDto(
                 code = it.code,
@@ -71,17 +70,27 @@ class MemberService(
                 DetailResponseDto(
                     code = detail.itemCode!!,
                     name = detail.stockName!!,
-                    price = detail.closePrice?.toDouble() ?: 0.0,
+                    price = clearPrice(detail.closePrice),
                 )
             } else {
                 DetailResponseDto(
                     code = detail.reutersCode!!,
                     name = detail.stockName!!,
-                    price = detail.closePrice?.toDouble() ?: 0.0,
+                    price = clearPrice(detail.closePrice)
                 )
             }
         } else {
             null
+        }
+    }
+
+    fun clearPrice(price: String?): Double {
+        return try {
+            price?.replace(",", "")
+                    ?.trim()
+                    ?.toDouble() ?: 0.0
+        } catch (e: NumberFormatException) {
+            0.0
         }
     }
 }

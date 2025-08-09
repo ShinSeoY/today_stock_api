@@ -1,16 +1,16 @@
-package com.todaystock.api.dto
+package com.todaystock.api.dto.response
 
 data class NaverStockSearchResponse(
-    val isSuccess: Boolean? = null,
-    val detailCode: String? = null,
-    val message: String? = null,
-    val result: Result? = null,
+        val isSuccess: Boolean? = null,
+        val detailCode: String? = null,
+        val message: String? = null,
+        val result: Result? = null,
 )
 
 data class Result(
-    val query: String,
-    val totalCount: Int,
-    val items: List<Item>,
+        val query: String,
+        val totalCount: Int,
+        val items: List<Item>,
 //    val tabsCheck: TabsCheck? = null,
 )
 
@@ -47,9 +47,9 @@ data class TradeStopType(
 )
 
 data class StockPollingResponse(
-    val pollingInterval: Int,
-    val datas: List<StockData>,
-    val time: String,
+        val pollingInterval: Int,
+        val datas: List<StockData>,
+        val time: String,
 )
 
 // data class DomesticStockPollingResponse(

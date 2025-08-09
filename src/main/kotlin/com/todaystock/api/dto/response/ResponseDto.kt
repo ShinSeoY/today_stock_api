@@ -1,4 +1,4 @@
-package com.todaystock.api.dto
+package com.todaystock.api.dto.response
 
 data class SearchResponseDto(
     val code: String,

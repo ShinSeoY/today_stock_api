@@ -1,7 +1,7 @@
 package com.todaystock.api.service
 
-import com.todaystock.api.dto.NaverStockSearchResponse
-import com.todaystock.api.dto.StockPollingResponse
+import com.todaystock.api.dto.response.NaverStockSearchResponse
+import com.todaystock.api.dto.response.StockPollingResponse
 import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
