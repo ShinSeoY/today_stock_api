@@ -12,6 +12,7 @@ data class DetailResponseDto(
     val code: String,
     val name: String,
     val price: Double,
+    val currencyCode: String,
 )
 
 data class AlarmResponseDto(
@@ -21,4 +22,5 @@ data class AlarmResponseDto(
         val condition: ConditionType,
         val email: String,
         val date: LocalDateTime,
+        val currencyCode: String
 )

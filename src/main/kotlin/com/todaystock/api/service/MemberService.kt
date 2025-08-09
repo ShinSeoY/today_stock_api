@@ -32,6 +32,7 @@ class MemberService(
                     code = code
                 ),
                 name = dto.stock.name,
+                currencyCode = dto.stock.currencyCode,
                 email = dto.requestEmail,
                 price = calcPrice,
                 conditionType = ConditionType.valueOf(dto.condition),
@@ -61,7 +62,8 @@ class MemberService(
                     price = it.price,
                     condition = it.conditionType,
                     email = it.email,
-                    date = it.createdAt
+                    date = it.createdAt,
+                    currencyCode = it.currencyCode
             )
         }
     }
@@ -97,12 +99,14 @@ class MemberService(
                     code = detail.itemCode!!,
                     name = detail.stockName!!,
                     price = clearPrice(detail.closePrice),
+                    currencyCode = detail.currencyType.code
                 )
             } else {
                 DetailResponseDto(
                     code = detail.reutersCode!!,
                     name = detail.stockName!!,
-                    price = clearPrice(detail.closePrice)
+                    price = clearPrice(detail.closePrice),
+                    currencyCode = detail.currencyType.code
                 )
             }
         } else {

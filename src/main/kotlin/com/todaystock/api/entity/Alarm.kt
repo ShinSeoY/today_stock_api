@@ -19,6 +19,7 @@ class Alarm(
     @EmbeddedId
     val alarmId: AlarmId,
     val name: String,
+    val currencyCode: String,
     @Column(nullable = false)
     var email: String,
     var price: Double,

@@ -80,7 +80,7 @@ data class StockData(
 //    val myDataCode: String? = null,
 //    val stockEndUrl: String? = null,
 //    val symbolCode: String? = null,
-//    val currencyType: CurrencyType? = null,
+    val currencyType: CurrencyType,
 )
 
 // data class WorldStockPollingResponse(
@@ -125,11 +125,11 @@ data class StockData(
 //    val tradeStopType: TradeStopType? = null
 // )
 //
-// data class CurrencyType(
-//    val code: String? = null,
-//    val text: String? = null,
-//    val name: String? = null,
-// )
+ data class CurrencyType(
+    val code: String,
+    val text: String? = null,
+    val name: String? = null,
+ )
 //
 // data class StockExchangeType(
 //    val code: String? = null,
