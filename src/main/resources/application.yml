@@ -1,7 +1,5 @@
 spring:
   application:
-    name: wj-kpi
+    name: today-stock
   profiles:
     active: prod
-    include:
-      - kafka

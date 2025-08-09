@@ -24,6 +24,7 @@ dependencies {
     runtimeOnly("com.mysql:mysql-connector-j")
     annotationProcessor("org.projectlombok:lombok")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.+")
 
     implementation("org.springframework.kafka:spring-kafka:3.1.1")
 

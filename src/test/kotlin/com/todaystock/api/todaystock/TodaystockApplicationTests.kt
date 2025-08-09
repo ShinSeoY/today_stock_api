@@ -15,8 +15,8 @@ class TodaystockApplicationTests(
     fun test() {
         runBlocking {
 //            val res = clientService.searchStock("삼성")
-//            val res = clientService.getStockDetail("/domestic/stock/500078/total")
-            val res = clientService.getStockDetail("/worldstock/stock/NVDA.O/total")
+            val res = clientService.getStockDetail("/domestic/stock/500078/total")
+//            val res = clientService.getStockDetail("/worldstock/stock/NVDA.O/total")
 //            val res = clientService.getStockDetail("/worldstock/etf/LAYS.O")
             println(res.toString())
         }

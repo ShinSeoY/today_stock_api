@@ -32,6 +32,7 @@ class SecurityConfig(
                 .authorizeHttpRequests {
                     it.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                     it.requestMatchers("/", "/login", "/css/**", "/js/**").permitAll()
+                    it.requestMatchers("/api/v1/external", "/api/v1/external/**").permitAll()
                             .anyRequest().authenticated()
                 }
                 .oauth2Login {
