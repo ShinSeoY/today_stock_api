@@ -17,5 +17,6 @@ data class AlimRequestDto(
 
 data class Stock(
         val code: String,
-        val url : String
+        val url : String,
+        val name: String
 )

@@ -5,6 +5,7 @@ import com.todaystock.api.dto.response.SearchResponseDto
 import com.todaystock.api.dto.common.ApiResponse
 import com.todaystock.api.dto.request.AlimRequestDto
 import com.todaystock.api.dto.request.SearchRequestDto
+import com.todaystock.api.dto.response.AlarmResponseDto
 import com.todaystock.api.entity.Member
 import com.todaystock.api.service.MemberService
 import org.springframework.web.bind.annotation.*
@@ -63,6 +64,35 @@ class MemberController(
             memberService.saveAlarm(member, dto)
             ApiResponse.success("ok")
         }catch (e: Exception){
+            e.printStackTrace()
+            ApiResponse.error("500", e.message ?: "error")
+        }
+    }
+
+    @GetMapping("/alarm")
+    fun getAlarms(
+            @CurrentUser member: Member
+    ): ApiResponse<List<AlarmResponseDto>> {
+        return try {
+            println(member.memberId.email)
+            val res = memberService.getAlarms(member)
+            ApiResponse.success(res)
+        }catch (e: Exception){
+            e.printStackTrace()
+            ApiResponse.error("500", e.message ?: "error")
+        }
+    }
+
+    @DeleteMapping("/alarm/{code}")
+    fun removeAlarm(
+            @CurrentUser member: Member,
+            @PathVariable code: String
+    ): ApiResponse<String> {
+        return try {
+            println(member.memberId.email)
+            memberService.removeAlarm(member, code)
+            ApiResponse.success("ok")
+        } catch (e: Exception){
             e.printStackTrace()
             ApiResponse.error("500", e.message ?: "error")
         }

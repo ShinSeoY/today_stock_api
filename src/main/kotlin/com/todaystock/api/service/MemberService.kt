@@ -4,10 +4,13 @@ import com.todaystock.api.dto.response.DetailResponseDto
 import com.todaystock.api.dto.response.SearchResponseDto
 import com.todaystock.api.dto.request.AlimRequestDto
 import com.todaystock.api.dto.request.SearchRequestDto
+import com.todaystock.api.dto.response.AlarmResponseDto
 import com.todaystock.api.entity.*
 import com.todaystock.api.repository.AlarmRepository
 import com.todaystock.api.repository.RedisRepository
 import org.springframework.stereotype.Service
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @Service
 class MemberService(
@@ -20,7 +23,7 @@ class MemberService(
         val memberProvider = member.memberId.provider
         val code = dto.stock.code
 
-        val calcPrice = dto.requestPrice ?: (dto.currentPrice * dto.percent!! * 0.01)
+        val calcPrice = dto.requestPrice ?: (dto.currentPrice * (1 +  dto.percent!!/100))
         alarmRepository.save(
             Alarm(
                 alarmId = AlarmId(
@@ -28,6 +31,7 @@ class MemberService(
                     memberProvider = memberProvider,
                     code = code
                 ),
+                name = dto.stock.name,
                 email = dto.requestEmail,
                 price = calcPrice,
                 conditionType = ConditionType.valueOf(dto.condition),
@@ -46,6 +50,28 @@ class MemberService(
             requestPrice = calcPrice.toString()
         )
         redisRepository.save(key, value)
+    }
+
+    fun getAlarms(member: Member): List<AlarmResponseDto>{
+        val res = alarmRepository.findAllByMember_MemberId_EmailAndMember_MemberId_Provider(member.memberId.email, member.memberId.provider)
+        return res.map {
+            AlarmResponseDto(
+                    code = it.alarmId.code,
+                    name = it.name,
+                    price = it.price,
+                    condition = it.conditionType,
+                    email = it.email,
+                    date = it.createdAt
+            )
+        }
+    }
+
+    fun removeAlarm(member: Member, code: String) {
+        alarmRepository.deleteById(AlarmId(
+                memberEmail = member.memberId.email,
+                memberProvider = member.memberId.provider,
+                code = code
+        ))
     }
 
     suspend fun getSearchList(

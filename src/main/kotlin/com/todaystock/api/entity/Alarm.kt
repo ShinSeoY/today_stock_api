@@ -18,9 +18,10 @@ data class AlarmId(
 class Alarm(
     @EmbeddedId
     val alarmId: AlarmId,
+    val name: String,
     @Column(nullable = false)
     var email: String,
-    var price: Double?,
+    var price: Double,
     var conditionType: ConditionType = ConditionType.LTE,
     var url: String,
     var enable: Boolean = false,
