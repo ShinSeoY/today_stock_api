@@ -26,6 +26,16 @@ spring:
 
   kafka:
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
+    listener:
+      ack-mode: manual
+    consumer:
+      enable-auto-commit: false
+      group-id: todaystock-success-consumer
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
 
   security:
     oauth2:
