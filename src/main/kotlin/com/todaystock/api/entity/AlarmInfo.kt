@@ -4,6 +4,8 @@ data class AlarmInfo (
     val memberProvider: String,
     val memberEmail: String,
     val requestEmail: String,
+    val name: String,
+    val conditionType: ConditionType,
     val requestUrl: String,
     val requestPrice: String,
 )

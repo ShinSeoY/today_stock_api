@@ -28,37 +28,36 @@ class RedisRepository(
     // 삭제
     fun delete(key: String): Boolean = redisTemplate.delete(key)
 
+    fun deleteAll(keys: Collection<String>): Long =
+            redisTemplate.delete(keys)
+
     // 키 존재 여부 확인
     fun exists(key: String): Boolean = redisTemplate.hasKey(key)
 
     // 키 확인
     fun getKeys(pattern: String): Set<String> = redisTemplate.keys(pattern)
 
-    // prefix 로 시작하는 모든 값 조회
-    fun <T : Any> findValuesByPrefix(prefix: String, clazz: Class<T>): List<T> {
-        val results = mutableListOf<T>()
+    data class RedisEntry<T>(val key: String, val value: T)
+
+    fun <T : Any> findEntriesByPrefix(prefix: String, clazz: Class<T>): List<RedisEntry<T>> {
+        val results = mutableListOf<RedisEntry<T>>()
 
         redisTemplate.execute { connection ->
-            // 1) 키 스캔 (raw keys)
-            val rawKeys = mutableListOf<ByteArray>()
             val scanOpt = ScanOptions.scanOptions().match("$prefix*").count(500).build()
             connection.scan(scanOpt).use { cur ->
-                while (cur.hasNext()) rawKeys += cur.next()
-            }
-            if (rawKeys.isEmpty()) return@execute null
-
-            // 2) 값 조회 (키별 GET - raw bytes)
-            val stringCmds = connection.stringCommands()
-            val rawValues: List<ByteArray?> = rawKeys.map { key -> stringCmds.get(key) }
-
-            // 3) 바이트 → POJO
-            rawValues.forEach { bytes ->
-                if (bytes != null) {
-                    runCatching { objectMapper.readValue(bytes, clazz) }
-                            .onSuccess { results += it }
-                            .onFailure {
-                                logger.error("Failed to deserialize one value", it)
-                            }
+                val stringCmds = connection.stringCommands()
+                while (cur.hasNext()) {
+                    val rawKey = cur.next()
+                    val rawVal = stringCmds.get(rawKey)
+                    if (rawVal != null) {
+                        runCatching {
+                            val v = objectMapper.readValue(rawVal, clazz)
+                            val k = String(rawKey, Charsets.UTF_8)
+                            results += RedisEntry(k, v)
+                        }.onFailure {
+                            logger.error("Failed to deserialize value for key", it)
+                        }
+                    }
                 }
             }
             null

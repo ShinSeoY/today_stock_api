@@ -44,6 +44,8 @@ class MemberService(
         val value = AlarmInfo(
                 memberProvider = memberProvider.name,
                 memberEmail = memberEmail,
+                name = dto.stock.name,
+                conditionType = ConditionType.valueOf(dto.condition),
                 requestEmail = dto.requestEmail,
                 requestUrl = dto.stock.url,
                 requestPrice = calcPrice.toString()
