@@ -48,6 +48,10 @@ jobs:
           SHA=$(git rev-parse --short HEAD)
           IMAGE_SHA=$REGISTRY/$APP:$SHA
           IMAGE_LATEST=$REGISTRY/$APP:latest
+          
+          echo "REGISTRY=$REGISTRY"
+          echo "IMAGE_SHA=$IMAGE_SHA"
+          echo "IMAGE_LATEST=$IMAGE_LATEST"
 
           docker buildx build \
             --build-arg PROFILE=prod \
