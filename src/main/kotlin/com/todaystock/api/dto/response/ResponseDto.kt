@@ -8,6 +8,7 @@ data class SearchResponseDto(
     val name: String,
     val url: String,
 )
+
 data class DetailResponseDto(
     val code: String,
     val name: String,
@@ -16,11 +17,11 @@ data class DetailResponseDto(
 )
 
 data class AlarmResponseDto(
-        val code: String,
-        val name: String,
-        val price: Double,
-        val condition: ConditionType,
-        val email: String,
-        val date: LocalDateTime,
-        val currencyCode: String
+    val code: String,
+    val name: String,
+    val price: Double,
+    val condition: ConditionType,
+    val email: String,
+    val date: LocalDateTime,
+    val currencyCode: String,
 )

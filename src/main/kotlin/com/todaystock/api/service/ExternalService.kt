@@ -14,10 +14,10 @@ import java.util.*
 
 @Service
 class ExternalService(
-        private val redisRepository: RedisRepository,
-        private val kafkaProducer: KafkaProducer,
-        private val objectMapper: ObjectMapper,
-        private val mailService: MailService
+    private val redisRepository: RedisRepository,
+    private val kafkaProducer: KafkaProducer,
+    private val objectMapper: ObjectMapper,
+    private val mailService: MailService,
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
@@ -53,13 +53,13 @@ class ExternalService(
     @Async
     fun sendEmail(dto: EmailDto) {
         val subject = "오늘의 주식 알림"
-        val body = """
+        val body =
+            """
             종목명 : ${dto.name} 
             설정가 : ${dto.requestPrice} [ ${if (dto.conditionType == ConditionType.GTE) "이상" else "이하"} ]
             현재가 : ${dto.collectedPrice}
-        """.trimIndent()
+            """.trimIndent()
 
         mailService.sendText(dto.requestEmail, subject, body)
     }
-
 }

@@ -9,19 +9,24 @@ import java.time.Duration
 
 @Service
 class RedisRepository(
-        private val redisTemplate: RedisTemplate<String, Any>,
-        private val objectMapper: ObjectMapper
+    private val redisTemplate: RedisTemplate<String, Any>,
+    private val objectMapper: ObjectMapper,
 ) {
-
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     // 객체 저장
-    fun save(key: String, value: Any) {
+    fun save(
+        key: String,
+        value: Any,
+    ) {
         redisTemplate.opsForValue().set(key, value)
     }
 
     // 객체 조회
-    fun <T> get(key: String, clazz: Class<T>): T? {
+    fun <T> get(
+        key: String,
+        clazz: Class<T>,
+    ): T? {
         val value = redisTemplate.opsForValue().get(key)
         return value?.let { clazz.cast(it) }
     }
@@ -29,8 +34,7 @@ class RedisRepository(
     // 삭제
     fun delete(key: String): Boolean = redisTemplate.delete(key)
 
-    fun deleteAll(keys: Collection<String>): Long =
-            redisTemplate.delete(keys)
+    fun deleteAll(keys: Collection<String>): Long = redisTemplate.delete(keys)
 
     // 키 존재 여부 확인
     fun exists(key: String): Boolean = redisTemplate.hasKey(key)
@@ -39,13 +43,20 @@ class RedisRepository(
     fun getKeys(pattern: String): Set<String> = redisTemplate.keys(pattern)
 
     // 키가 없을 때만 저장 (SETNX)
-    fun setIfAbsent(key: String, value: String, ttl: Duration): Boolean {
+    fun setIfAbsent(
+        key: String,
+        value: String,
+        ttl: Duration,
+    ): Boolean {
         return redisTemplate.opsForValue().setIfAbsent(key, value, ttl) ?: false
     }
 
     data class RedisEntry<T>(val key: String, val value: T)
 
-    fun <T : Any> findEntriesByPrefix(prefix: String, clazz: Class<T>): Map<String, T> {
+    fun <T : Any> findEntriesByPrefix(
+        prefix: String,
+        clazz: Class<T>,
+    ): Map<String, T> {
         val result = mutableMapOf<String, T>()
         redisTemplate.execute { conn ->
             val scan = conn.scan(ScanOptions.scanOptions().match("$prefix*").count(1000).build())
@@ -70,6 +81,4 @@ class RedisRepository(
         }
         return result
     }
-
-
 }

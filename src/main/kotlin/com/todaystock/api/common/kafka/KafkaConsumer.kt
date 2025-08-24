@@ -11,22 +11,20 @@ import org.springframework.stereotype.Component
 
 @Component
 class KafkaConsumer(
-        private val successResponseChannel: Channel<SuccessResponseDto>,
+    private val successResponseChannel: Channel<SuccessResponseDto>,
 ) {
-
     private val logger = LoggerFactory.getLogger(this::class.java)
     private val gson = Gson()
 
     @KafkaListener(
-            topics = ["today-stock.success"],
-            groupId = "\${spring.kafka.consumer.group-id}"
+        topics = ["today-stock.success"],
+        groupId = "\${spring.kafka.consumer.group-id}",
     )
     fun consume(
-            @Payload message: SuccessResponseDto,
-            acknowledgment: Acknowledgment,
+        @Payload message: SuccessResponseDto,
+        acknowledgment: Acknowledgment,
     ) {
         runCatching {
-
             successResponseChannel.trySend(message).getOrThrow()
 
             acknowledgment.acknowledge()
@@ -35,4 +33,3 @@ class KafkaConsumer(
         }
     }
 }
-

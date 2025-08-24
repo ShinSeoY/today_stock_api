@@ -15,41 +15,40 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
 @Configuration
 class SecurityConfig(
-        private val oauth2UserService: CustomOAuth2UserService,
-        private val oAuth2SuccessHandler: OAuth2SuccessHandler,
-        private val jwtUtil: JwtUtil,
-        private val customUserDetailsService: CustomUserDetailsService,
+    private val oauth2UserService: CustomOAuth2UserService,
+    private val oAuth2SuccessHandler: OAuth2SuccessHandler,
+    private val jwtUtil: JwtUtil,
+    private val customUserDetailsService: CustomUserDetailsService,
 ) {
-
     @Bean
     fun filterChain(
-            http: HttpSecurity,
-            corsConfigurationSource: CorsConfigurationSource,
+        http: HttpSecurity,
+        corsConfigurationSource: CorsConfigurationSource,
     ): SecurityFilterChain {
         http
-                .cors { it.configurationSource(corsConfigurationSource) }
-                .csrf { it.disable() }
-                .authorizeHttpRequests {
-                    it.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                    it.requestMatchers("/", "/login", "/css/**", "/js/**").permitAll()
-                    it.requestMatchers("/api/v1/external", "/api/v1/external/**").permitAll()
-                            .anyRequest().authenticated()
-                }
-                .oauth2Login {
-                    it.userInfoEndpoint { userInfo -> userInfo.userService(oauth2UserService) }
-                            .successHandler(oAuth2SuccessHandler)
-                }
-                .addFilterBefore(
-                        JwtAuthenticationFilter(jwtUtil, customUserDetailsService),
-                        UsernamePasswordAuthenticationFilter::class.java
-                )
+            .cors { it.configurationSource(corsConfigurationSource) }
+            .csrf { it.disable() }
+            .authorizeHttpRequests {
+                it.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                it.requestMatchers("/", "/login", "/css/**", "/js/**").permitAll()
+                it.requestMatchers("/api/v1/external", "/api/v1/external/**").permitAll()
+                    .anyRequest().authenticated()
+            }
+            .oauth2Login {
+                it.userInfoEndpoint { userInfo -> userInfo.userService(oauth2UserService) }
+                    .successHandler(oAuth2SuccessHandler)
+            }
+            .addFilterBefore(
+                JwtAuthenticationFilter(jwtUtil, customUserDetailsService),
+                UsernamePasswordAuthenticationFilter::class.java,
+            )
 
         return http.build()
     }
 
     @Bean
     fun corsConfigurationSource(
-            @Value("\${app.cors.allowed-origins:http://localhost:5173}") origins: String
+        @Value("\${app.cors.allowed-origins:http://localhost:5173}") origins: String,
     ): CorsConfigurationSource {
         val config = CorsConfiguration()
         config.allowCredentials = true

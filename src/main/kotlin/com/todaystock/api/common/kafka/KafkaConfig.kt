@@ -14,12 +14,11 @@ import org.springframework.kafka.core.*
 @EnableKafka
 @Configuration
 class KafkaConfig(
-        @Value("\${spring.kafka.bootstrap-servers}")
-        private val bootstrapServers: String,
-        @Value("\${spring.kafka.consumer.group-id}")
-        private val groupId: String,
+    @Value("\${spring.kafka.bootstrap-servers}")
+    private val bootstrapServers: String,
+    @Value("\${spring.kafka.consumer.group-id}")
+    private val groupId: String,
 ) {
-
     // === Producer 설정 ===
     @Bean
     fun producerFactory(): ProducerFactory<String, String> {

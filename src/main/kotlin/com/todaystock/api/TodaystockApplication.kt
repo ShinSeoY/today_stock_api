@@ -15,27 +15,27 @@ import org.springframework.stereotype.Component
 
 @Component
 class CommandLineRunnerSample(
-        private val bufferService: BufferService,
-        private val successResponseChannel: Channel<SuccessResponseDto>,
-        @Value("\${batch.size}")
-        private val batchSize: Int,
+    private val bufferService: BufferService,
+    private val successResponseChannel: Channel<SuccessResponseDto>,
+    @Value("\${batch.size}")
+    private val batchSize: Int,
 ) : CommandLineRunner {
     private val logger = LoggerFactory.getLogger(CommandLineRunner::class.java)
     private val buffer = mutableListOf<SuccessResponseDto>()
 
     override fun run(args: Array<String>): Unit =
-            runBlocking {
-                CoroutineScope(Dispatchers.IO).launch {
-                    while (isActive) {
-                        val successResponse = successResponseChannel.receive()
-                        buffer.add(successResponse)
+        runBlocking {
+            CoroutineScope(Dispatchers.IO).launch {
+                while (isActive) {
+                    val successResponse = successResponseChannel.receive()
+                    buffer.add(successResponse)
 
-                        if (buffer.size >= batchSize) {
-                            bufferService.flushBuffer(buffer, batchSize)
-                        }
+                    if (buffer.size >= batchSize) {
+                        bufferService.flushBuffer(buffer, batchSize)
                     }
                 }
             }
+        }
 
     @Scheduled(fixedRate = 1 * 60 * 1000L)
     fun flushBufferScheduler() {

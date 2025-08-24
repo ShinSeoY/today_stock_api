@@ -8,8 +8,8 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 class ChannelConfig(
-        @Value("\${batch.size}")
-        private val batchSize: Int,
+    @Value("\${batch.size}")
+    private val batchSize: Int,
 ) {
     @Bean
     fun successResponseChannel(): Channel<SuccessResponseDto> {
