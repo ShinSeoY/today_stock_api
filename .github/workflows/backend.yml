@@ -18,7 +18,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: '17'
-          distribution: 'adopt'
+          distribution: 'temurin'
 
       - name: Gradle build (skip tests if needed)
         run: ./gradlew clean build -x test
@@ -51,4 +51,5 @@ jobs:
             -t $IMAGE_SHA \
             -t $IMAGE_LATEST \
             --push .
-          echo "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+
+          echo "Pushed: $IMAGE_SHA and $IMAGE_LATEST"
