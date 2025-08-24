@@ -1,21 +1,10 @@
-FROM gradle:8.7-jdk17 AS builder
-WORKDIR /app
+FROM openjdk:17-jdk
 
-COPY build.gradle settings.gradle gradlew ./
-COPY gradle ./gradle
-RUN ./gradlew dependencies || true
+ARG JAR_FILE=build/libs/*SNAPSHOT.jar
+COPY ${JAR_FILE} backend.jar
 
-COPY . .
-RUN ./gradlew clean build -x test
+ARG PROFILE
 
-FROM eclipse-temurin:17-jre-alpine
-WORKDIR /app
+ENV PROFILE_ENV=${PROFILE}
 
-COPY --from=builder /app/build/libs/*.jar app.jar
-
-ARG PROFILE=prod
-ENV SPRING_PROFILES_ACTIVE=${PROFILE}
-
-EXPOSE 8080
-
-ENTRYPOINT ["java","-jar","/app/app.jar"]
+ENTRYPOINT ["java", "-Xms2048M", "-Xmx2048M", "-jar", "-Dspring.profiles.active=${PROFILE_ENV}", "backend.jar"]
