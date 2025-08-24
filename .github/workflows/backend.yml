@@ -51,5 +51,5 @@ jobs:
             -t $IMAGE_SHA \
             -t $IMAGE_LATEST \
             --push .
-
-          echo "Pushed: $IMAGE_SHA and $IMAGE_LATEST"
+               
+          echo "$REGISTRY:$IMAGE_LATEST"
