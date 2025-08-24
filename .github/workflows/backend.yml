@@ -53,4 +53,4 @@ jobs:
             -t $IMAGE_SHA \
             -t $IMAGE_LATEST \
             --push .
-          echo "Pushed: $IMAGE_SHA and $IMAGE_LATEST"
+          echo "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
