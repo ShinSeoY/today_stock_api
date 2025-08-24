@@ -6,7 +6,6 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-
     permissions:
       contents: read
 
@@ -20,15 +19,18 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
       - name: Gradle build (skip tests if needed)
         run: ./gradlew clean build -x test
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region:            ${{ secrets.AWS_REGION }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Login to Amazon ECR
         id: ecr
@@ -39,17 +41,15 @@ jobs:
 
       - name: Build & Push image
         env:
-          REGISTRY: ${{ secrets.ECR_REGISTRY }}
+          REGISTRY: ${{ steps.ecr.outputs.registry }}
         run: |
+          set -e
           APP=backend
           SHA=$(git rev-parse --short HEAD)
           IMAGE_SHA=$REGISTRY/$APP:$SHA
           IMAGE_LATEST=$REGISTRY/$APP:latest
+
           docker buildx build \
-            --build-arg PROFILE=prod
-#            --platform linux/arm64 \
+            --build-arg PROFILE=prod \
             -t $IMAGE_SHA \
-            -t $IMAGE_LATEST \
-            --push .
-               
-          echo "$REGISTRY:$IMAGE_LATEST"
+            -t $IM
