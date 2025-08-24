@@ -33,9 +33,12 @@ spring:
       group-id: todaystock-success-consumer
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       properties:
-        spring.json.trusted.packages: "*"
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+        spring.json.trusted.packages: com.todaystock.api.dto.response
+        spring.json.value.default.type: com.todaystock.api.dto.response.SuccessResponseDto
+        spring.json.use.type.headers: false  # 헤더에 타입이 없어도 기본 타입으로 파싱
 
   security:
     oauth2:
@@ -71,3 +74,6 @@ spring:
 app:
   cors:
     allowed-origins: http://localhost:5173,https://www.your-domain.com
+
+batch:
+  size: 500

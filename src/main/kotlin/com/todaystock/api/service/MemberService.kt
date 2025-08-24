@@ -8,6 +8,7 @@ import com.todaystock.api.dto.response.SearchResponseDto
 import com.todaystock.api.entity.*
 import com.todaystock.api.repository.AlarmRepository
 import com.todaystock.api.repository.RedisRepository
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
@@ -16,6 +17,9 @@ class MemberService(
         private val alarmRepository: AlarmRepository,
         private val redisRepository: RedisRepository,
 ) {
+
+    private val logger = LoggerFactory.getLogger(this::class.java)
+
     fun saveAlarm(member: Member, dto: AlimRequestDto) {
         val memberEmail = member.memberId.email
         val memberProvider = member.memberId.provider
@@ -48,7 +52,8 @@ class MemberService(
                 conditionType = ConditionType.valueOf(dto.condition),
                 requestEmail = dto.requestEmail,
                 requestUrl = dto.stock.url,
-                requestPrice = calcPrice.toString()
+                requestPrice = calcPrice.toString(),
+                code = dto.stock.code
         )
         redisRepository.save(key, value)
     }
@@ -76,6 +81,26 @@ class MemberService(
         ))
         val key = "todaystock:${member.memberId.email}:${member.memberId.provider}:${code}"
         redisRepository.delete(key)
+    }
+
+    fun bulkUpdateAlarmStatus(alarmIds: List<AlarmId>) {
+        if (alarmIds.isEmpty()) return
+
+        val keys = alarmIds.map { "todaystock:${it.memberEmail}:${it.memberProvider}:${it.code}" }
+
+        val successCnt = alarmRepository.bulkUpdateEnableByIds(false, alarmIds)
+        logger.info("updated $successCnt alarms status")
+
+        if (successCnt == keys.size) {
+            val lockKeys = keys.map { "$it:lock" }
+            // 원본 키 + 락 키 동시 삭제
+            redisRepository.deleteAll(keys + lockKeys)
+            logger.info("Deleted ${keys.size} keys and ${lockKeys.size} locks from Redis")
+        } else {
+            logger.error("❗️조회된 키 수와 업데이트 성공 수가 다릅니다. 일부만 삭제를 건너뜁니다.")
+            // 부분 성공 시: 실제로 업데이트 성공한 ID만 추려서 해당 키/락만 지우는 로직을 권장
+            // (ex. repo가 성공한 알람ID를 반환하도록 하거나, 개별 업데이트로 전환)
+        }
     }
 
     suspend fun getSearchList(
@@ -116,7 +141,7 @@ class MemberService(
         }
     }
 
-    fun clearPrice(price: String?): Double {
+    private fun clearPrice(price: String?): Double {
         return try {
             price?.replace(",", "")
                     ?.trim()

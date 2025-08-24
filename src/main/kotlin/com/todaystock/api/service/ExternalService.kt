@@ -9,6 +9,8 @@ import com.todaystock.api.repository.RedisRepository
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
+import java.time.Duration
+import java.util.*
 
 @Service
 class ExternalService(
@@ -23,21 +25,28 @@ class ExternalService(
         val entries = redisRepository.findEntriesByPrefix("todaystock:", AlarmInfo::class.java)
         if (entries.isEmpty()) return
 
-        val successKeys = mutableListOf<String>()
-
         entries.forEach { (key, alarm) ->
+            val lockKey = "$key:lock"
+            val token = UUID.randomUUID().toString()
+            val acquired = redisRepository.setIfAbsent(lockKey, token, Duration.ofSeconds(300)) //  5분 TTL
+            // 이미 처리 중(IN_FLIGHT) → 이번 사이클 건너뜀
+            if (!acquired) {
+                return@forEach
+            }
+
             runCatching {
+//                // 메시지에 redisKey/lockToken을 함께 넣어 내려보내면 이후 단계에서 검증/삭제에 사용 가능
+//                val envelope = mapOf(
+//                        "redisKey" to key,
+//                        "lockToken" to token,
+//                        "payload" to alarm
+//                )
                 kafkaProducer.sendMessages(objectMapper.writeValueAsString(alarm))
-            }.onSuccess {
-                successKeys += key
             }.onFailure { e ->
+                // 발행 실패 시 락 해제 → 다음 사이클에서 재시도
+                redisRepository.delete(lockKey)
                 logger.error("Kafka send failed for key=$key", e)
             }
-        }
-
-        if (successKeys.isNotEmpty()) {
-            val deleted = redisRepository.deleteAll(successKeys)
-            logger.info("Deleted $deleted keys from Redis")
         }
     }
 
@@ -46,7 +55,7 @@ class ExternalService(
         val subject = "오늘의 주식 알림"
         val body = """
             종목명 : ${dto.name} 
-            설정가 : ${dto.requestPrice} [ ${ if (dto.conditionType == ConditionType.GTE) "이상" else "이하" } ]
+            설정가 : ${dto.requestPrice} [ ${if (dto.conditionType == ConditionType.GTE) "이상" else "이하"} ]
             현재가 : ${dto.collectedPrice}
         """.trimIndent()
 
