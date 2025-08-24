@@ -37,8 +37,6 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # Graviton(ARM) EC2에서 돌릴 거면 platform을 arm64로!
-      # x86 EC2라면 linux/amd64로 변경하세요.
       - name: Build & Push image
         env:
           REGISTRY: ${{ secrets.ECR_REGISTRY }}
