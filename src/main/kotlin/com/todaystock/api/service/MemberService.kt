@@ -13,52 +13,52 @@ import org.springframework.stereotype.Service
 
 @Service
 class MemberService(
-    private val clientService: ClientService,
-    private val alarmRepository: AlarmRepository,
-    private val redisRepository: RedisRepository,
+        private val clientService: ClientService,
+        private val alarmRepository: AlarmRepository,
+        private val redisRepository: RedisRepository,
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     fun saveAlarm(
-        member: Member,
-        dto: AlimRequestDto,
+            member: Member,
+            dto: AlimRequestDto,
     ) {
         val memberEmail = member.memberId.email
         val memberProvider = member.memberId.provider
         val code = dto.stock.code
 
-        val calcPrice = dto.requestPrice ?: (dto.currentPrice * (1 + dto.percent!! / 100))
+        val calcPrice = dto.calcPrice ?: dto.requestPrice ?: (dto.currentPrice * (1 + dto.percent!! / 100))
         alarmRepository.save(
-            Alarm(
-                alarmId =
-                    AlarmId(
-                        memberEmail = memberEmail,
-                        memberProvider = memberProvider,
-                        code = code,
-                    ),
-                name = dto.stock.name,
-                currencyCode = dto.stock.currencyCode,
-                email = dto.requestEmail,
-                price = calcPrice,
-                conditionType = ConditionType.valueOf(dto.condition),
-                url = dto.stock.url,
-                enable = true,
-                member = member,
-            ),
+                Alarm(
+                        alarmId =
+                        AlarmId(
+                                memberEmail = memberEmail,
+                                memberProvider = memberProvider,
+                                code = code,
+                        ),
+                        name = dto.stock.name,
+                        currencyCode = dto.stock.currencyCode,
+                        email = dto.requestEmail,
+                        price = calcPrice,
+                        conditionType = ConditionType.valueOf(dto.condition),
+                        url = dto.stock.url,
+                        enable = true,
+                        member = member,
+                ),
         )
 
         val key = "todaystock:$memberEmail:$memberProvider:$code"
         val value =
-            AlarmInfo(
-                memberProvider = memberProvider.name,
-                memberEmail = memberEmail,
-                name = dto.stock.name,
-                conditionType = ConditionType.valueOf(dto.condition),
-                requestEmail = dto.requestEmail,
-                requestUrl = dto.stock.url,
-                requestPrice = calcPrice.toString(),
-                code = dto.stock.code,
-            )
+                AlarmInfo(
+                        memberProvider = memberProvider.name,
+                        memberEmail = memberEmail,
+                        name = dto.stock.name,
+                        conditionType = ConditionType.valueOf(dto.condition),
+                        requestEmail = dto.requestEmail,
+                        requestUrl = dto.stock.url,
+                        requestPrice = calcPrice.toString(),
+                        code = dto.stock.code,
+                )
         redisRepository.save(key, value)
     }
 
@@ -66,27 +66,45 @@ class MemberService(
         val res = alarmRepository.findAllByMember_MemberId_EmailAndMember_MemberId_Provider(member.memberId.email, member.memberId.provider)
         return res.map {
             AlarmResponseDto(
-                code = it.alarmId.code,
-                name = it.name,
-                price = it.price,
-                condition = it.conditionType,
-                email = it.email,
-                date = it.createdAt,
-                currencyCode = it.currencyCode,
+                    code = it.alarmId.code,
+                    url = it.url,
+                    name = it.name,
+                    price = it.price,
+                    condition = it.conditionType,
+                    email = it.email,
+                    date = it.createdAt,
+                    currencyCode = it.currencyCode,
+                    enable = it.enable
             )
         }
     }
 
     fun removeAlarm(
-        member: Member,
-        code: String,
+            member: Member,
+            code: String,
     ) {
         alarmRepository.deleteById(
-            AlarmId(
-                memberEmail = member.memberId.email,
-                memberProvider = member.memberId.provider,
-                code = code,
-            ),
+                AlarmId(
+                        memberEmail = member.memberId.email,
+                        memberProvider = member.memberId.provider,
+                        code = code,
+                ),
+        )
+        val key = "todaystock:${member.memberId.email}:${member.memberId.provider}:$code"
+        redisRepository.delete(key)
+    }
+
+    fun disableAlarm(
+            member: Member,
+            code: String,
+    ) {
+        alarmRepository.bulkUpdateEnableByIds(
+                enable = false,
+                listOf(AlarmId(
+                        memberEmail = member.memberId.email,
+                        memberProvider = member.memberId.provider,
+                        code = code,
+                )),
         )
         val key = "todaystock:${member.memberId.email}:${member.memberId.provider}:$code"
         redisRepository.delete(key)
@@ -116,9 +134,9 @@ class MemberService(
         val res = clientService.searchStock(dto.keyword!!, dto.page)
         return res?.result?.items?.map {
             SearchResponseDto(
-                code = it.code,
-                name = it.name,
-                url = it.url,
+                    code = it.code,
+                    name = it.name,
+                    url = it.url,
             )
         } ?: emptyList()
     }
@@ -130,17 +148,17 @@ class MemberService(
 
             if (url.contains("domestic")) {
                 DetailResponseDto(
-                    code = detail.itemCode!!,
-                    name = detail.stockName!!,
-                    price = clearPrice(detail.closePrice),
-                    currencyCode = detail.currencyType.code,
+                        code = detail.itemCode!!,
+                        name = detail.stockName!!,
+                        price = clearPrice(detail.closePrice),
+                        currencyCode = detail.currencyType.code,
                 )
             } else {
                 DetailResponseDto(
-                    code = detail.reutersCode!!,
-                    name = detail.stockName!!,
-                    price = clearPrice(detail.closePrice),
-                    currencyCode = detail.currencyType.code,
+                        code = detail.reutersCode!!,
+                        name = detail.stockName!!,
+                        price = clearPrice(detail.closePrice),
+                        currencyCode = detail.currencyType.code,
                 )
             }
         } else {
@@ -151,8 +169,8 @@ class MemberService(
     private fun clearPrice(price: String?): Double {
         return try {
             price?.replace(",", "")
-                ?.trim()
-                ?.toDouble() ?: 0.0
+                    ?.trim()
+                    ?.toDouble() ?: 0.0
         } catch (e: NumberFormatException) {
             0.0
         }

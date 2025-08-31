@@ -12,21 +12,22 @@ import org.springframework.stereotype.Repository
 @Repository
 interface AlarmRepository : JpaRepository<Alarm, AlarmId> {
     fun findAllByMember_MemberId_EmailAndMember_MemberId_Provider(
-        email: String,
-        provider: AuthProvider,
+            email: String,
+            provider: AuthProvider,
     ): List<Alarm>
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Transactional
     @Query(
-        """
+            """
         UPDATE Alarm a 
            SET a.enable = :enable
          WHERE a.alarmId IN :ids
     """,
     )
     fun bulkUpdateEnableByIds(
-        enable: Boolean,
-        ids: List<AlarmId>,
+            enable: Boolean,
+            ids: List<AlarmId>,
     ): Int
+
 }

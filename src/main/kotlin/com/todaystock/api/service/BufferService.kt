@@ -8,41 +8,42 @@ import org.springframework.stereotype.Component
 
 @Component
 class BufferService(
-    private val memberService: MemberService,
+        private val memberService: MemberService,
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     fun flushBuffer(
-        buffer: MutableList<SuccessResponseDto>,
-        batchSize: Int,
+            buffer: MutableList<SuccessResponseDto>,
+            batchSize: Int,
     ) {
         val successResponseBufferCopy =
-            synchronized(buffer) {
-                val copy = buffer.toList()
-                buffer.clear()
-                copy
-            }
+                synchronized(buffer) {
+                    val copy = buffer.toList()
+                    buffer.clear()
+                    copy
+                }
 
         runCatching {
+            val filteredBuffer = successResponseBufferCopy.filter { it.emailed }
             bulkUpdate(
-                successResponseBufferCopy.map {
-                    AlarmId(
-                        memberEmail = it.memberEmail,
-                        memberProvider = AuthProvider.valueOf(it.memberProvider),
-                        code = it.code,
-                    )
-                },
-                batchSize = batchSize,
+                    filteredBuffer.map {
+                        AlarmId(
+                                memberEmail = it.memberEmail,
+                                memberProvider = AuthProvider.valueOf(it.memberProvider),
+                                code = it.code,
+                        )
+                    },
+                    batchSize = batchSize,
             )
-            logger.info("Successfully saved data: ${successResponseBufferCopy.size}")
+            logger.info("Successfully saved data: ${filteredBuffer.size}")
         }.onFailure {
             logger.error("Failed to save to DB.", it)
         }
     }
 
     private fun bulkUpdate(
-        alarmIds: List<AlarmId>,
-        batchSize: Int,
+            alarmIds: List<AlarmId>,
+            batchSize: Int,
     ) {
         if (alarmIds.size <= batchSize) {
             memberService.bulkUpdateAlarmStatus(alarmIds)

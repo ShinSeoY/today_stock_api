@@ -13,15 +13,15 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/api/v1/user")
 class MemberController(
-    private val memberService: MemberService,
+        private val memberService: MemberService,
 ) {
     /**
      * 주식 검색
      */
     @PostMapping("/stock/search")
     suspend fun getSearchList(
-        @CurrentUser member: Member,
-        @RequestBody dto: SearchRequestDto,
+            @CurrentUser member: Member,
+            @RequestBody dto: SearchRequestDto,
     ): ApiResponse<List<SearchResponseDto>> {
         return try {
             val res = memberService.getSearchList(dto)
@@ -37,8 +37,8 @@ class MemberController(
      */
     @PostMapping("/stock/detail")
     suspend fun getStockDetail(
-        @CurrentUser member: Member,
-        @RequestBody dto: SearchRequestDto,
+            @CurrentUser member: Member,
+            @RequestBody dto: SearchRequestDto,
     ): ApiResponse<DetailResponseDto?> {
         return try {
             val res = memberService.getStockDetail(dto.url!!)
@@ -54,8 +54,8 @@ class MemberController(
      */
     @PostMapping("/alarm")
     fun saveAlarm(
-        @CurrentUser member: Member,
-        @RequestBody dto: AlimRequestDto,
+            @CurrentUser member: Member,
+            @RequestBody dto: AlimRequestDto,
     ): ApiResponse<String> {
         return try {
             memberService.saveAlarm(member, dto)
@@ -71,7 +71,7 @@ class MemberController(
      */
     @GetMapping("/alarm")
     fun getAlarms(
-        @CurrentUser member: Member,
+            @CurrentUser member: Member,
     ): ApiResponse<List<AlarmResponseDto>> {
         return try {
             val res = memberService.getAlarms(member)
@@ -87,11 +87,28 @@ class MemberController(
      */
     @DeleteMapping("/alarm/{code}")
     fun removeAlarm(
-        @CurrentUser member: Member,
-        @PathVariable code: String,
+            @CurrentUser member: Member,
+            @PathVariable code: String,
     ): ApiResponse<String> {
         return try {
             memberService.removeAlarm(member, code)
+            ApiResponse.success("ok")
+        } catch (e: Exception) {
+            e.printStackTrace()
+            ApiResponse.error("500", e.message ?: "error")
+        }
+    }
+
+    /**
+     * 알림 비활성화
+     */
+    @PutMapping("/alarm/{code}")
+    fun disableAlarm(
+            @CurrentUser member: Member,
+            @PathVariable code: String,
+    ): ApiResponse<String> {
+        return try {
+            memberService.disableAlarm(member, code)
             ApiResponse.success("ok")
         } catch (e: Exception) {
             e.printStackTrace()
