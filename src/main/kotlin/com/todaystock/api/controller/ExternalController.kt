@@ -26,7 +26,6 @@ class ExternalController(
         @RequestBody dto: EmailDto,
     ): ApiResponse<String> {
         return try {
-            println("--email")
             externalService.sendEmail(dto)
             ApiResponse.success("ok")
         } catch (e: Exception) {
