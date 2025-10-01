@@ -49,4 +49,4 @@ jobs:
           IMAGE_SHA=$REGISTRY/$APP:$SHA
           IMAGE_LATEST=$REGISTRY/$APP:latest
 
-          docker buildx build --build-arg PROFILE=prod -t "$IMAGE_SHA" -t "$IMAGE_LATEST" --push .
+          docker buildx build --build-arg PROFILE=prod --platform linux/amd64 -t "$IMAGE_SHA" -t "$IMAGE_LATEST" --push .
