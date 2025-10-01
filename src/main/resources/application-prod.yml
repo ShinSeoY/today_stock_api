@@ -6,8 +6,9 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   data:
     redis:
-      host: localhost
+      host: ${REDIS_HOST_ENV}
       port: 6379
+      password: ${REDIS_PASSWORD_ENV:null}
   jpa:
     hibernate:
       ddl-auto: update
