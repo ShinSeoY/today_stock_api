@@ -7,7 +7,7 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
 
     steps:
       - name: Checkout
@@ -40,6 +40,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build & Push image
+        id: build
         env:
           REGISTRY: ${{ steps.ecr.outputs.registry }}
         run: |
@@ -48,5 +49,44 @@ jobs:
           SHA=$(git rev-parse --short HEAD)
           IMAGE_SHA=$REGISTRY/$APP:$SHA
           IMAGE_LATEST=$REGISTRY/$APP:latest
+          
+          docker buildx build \
+            --build-arg PROFILE=prod \
+            --platform linux/amd64 \
+            -t "$IMAGE_SHA" \
+            -t "$IMAGE_LATEST" \
+            --push .
+          
+          # Output for next step
+          echo "image_tag=$SHA" >> $GITHUB_OUTPUT
 
-          docker buildx build --build-arg PROFILE=prod --platform linux/amd64 -t "$IMAGE_SHA" -t "$IMAGE_LATEST" --push .
+      # ArgoCD 배포 저장소 업데이트
+      - name: Checkout deploy repository
+        uses: actions/checkout@v4
+        with:
+          repository: ShinSeoY/today_stock_deploy
+          token: ${{ secrets.GITHUB_TOKEN }}  # 또는 PAT: ${{ secrets.GH_PAT }}
+          path: deploy-repo
+
+      - name: Update backend image tag
+        run: |
+          cd deploy-repo/charts/today-stock-app
+          
+          # yq 설치 (YAML 파일 수정 도구)
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+          
+          # values.yaml에서 backend 이미지 태그 업데이트
+          yq eval ".backend.image.tag = \"${{ steps.build.outputs.image_tag }}\"" -i values.yaml
+          
+          cat values.yaml
+
+      - name: Commit and push changes
+        run: |
+          cd deploy-repo
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          
+          git add charts/today-stock-app/values.yaml
+          git commit -m "Update backend image tag to ${{ steps.build.outputs.image_tag }}" || echo "No changes"
+          git push
