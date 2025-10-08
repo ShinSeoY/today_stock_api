@@ -32,6 +32,6 @@ class OAuth2SuccessHandler(
 
         val token = jwtUtil.generateToken(email, provider)
 
-        response.sendRedirect("$redirectUrl/stock-alert?token=$token")
+        response.sendRedirect("/stock-alert?token=$token")
     }
 }
