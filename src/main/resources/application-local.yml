@@ -77,7 +77,7 @@ app:
     allowed-origins: http://localhost:5173,https://www.your-domain.com
 
 web:
-  redirect-url: /api
+  redirect-url: http://localhost:5173
 
 batch:
   size: 500
