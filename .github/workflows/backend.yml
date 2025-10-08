@@ -53,6 +53,7 @@ jobs:
           docker buildx build \
             --build-arg PROFILE=prod \
             --platform linux/amd64 \
+            --no-cache \
             -t "$IMAGE_SHA" \
             -t "$IMAGE_LATEST" \
             --push .
