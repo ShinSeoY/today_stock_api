@@ -65,7 +65,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ShinSeoY/today_stock_deploy
-          token: ${{ secrets.GITHUB_TOKEN }}  # 또는 PAT: ${{ secrets.GH_PAT }}
+          token: ${{ secrets.GH_PAT }}
           path: deploy-repo
 
       - name: Update backend image tag
