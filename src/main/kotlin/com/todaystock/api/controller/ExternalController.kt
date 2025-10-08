@@ -6,9 +6,9 @@ import com.todaystock.api.service.ExternalService
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/api/v1/external")
+@RequestMapping("/v1/external")
 class ExternalController(
-    private val externalService: ExternalService,
+        private val externalService: ExternalService,
 ) {
     @GetMapping("/alarms/publish")
     fun publishAlarms(): ApiResponse<String> {
@@ -23,7 +23,7 @@ class ExternalController(
 
     @PostMapping("/email")
     fun sendEmail(
-        @RequestBody dto: EmailDto,
+            @RequestBody dto: EmailDto,
     ): ApiResponse<String> {
         return try {
             externalService.sendEmail(dto)

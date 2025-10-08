@@ -4,7 +4,6 @@ import com.todaystock.api.common.utils.JwtUtil
 import com.todaystock.api.entity.AuthProvider
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.Authentication
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler
@@ -12,8 +11,6 @@ import org.springframework.stereotype.Component
 
 @Component
 class OAuth2SuccessHandler(
-        @Value("\${web.redirect-url}")
-        private val redirectUrl: String,
         private val jwtUtil: JwtUtil,
 ) : AuthenticationSuccessHandler {
     override fun onAuthenticationSuccess(
