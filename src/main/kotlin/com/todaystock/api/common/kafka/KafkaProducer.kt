@@ -13,6 +13,7 @@ class KafkaProducer(
     private val TOPIC = "today-stock"
 
     fun sendMessages(message: String) {
+        println("----/v1/external/alarms/publish 3333")
         kafkaTemplate.send(TOPIC, message)
             .whenComplete { result: SendResult<String, String>, ex: Throwable? ->
                 if (ex == null) {

@@ -12,6 +12,7 @@ class ExternalController(
 ) {
     @GetMapping("/alarms/publish")
     fun publishAlarms(): ApiResponse<String> {
+        println("----/v1/external/alarms/publish")
         return try {
             externalService.publishAlarms()
             ApiResponse.success("ok")

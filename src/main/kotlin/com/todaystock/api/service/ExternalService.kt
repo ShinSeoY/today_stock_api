@@ -26,6 +26,7 @@ class ExternalService(
         if (entries.isEmpty()) return
 
         entries.forEach { (key, alarm) ->
+            println("----/v1/external/alarms/publish 2222")
             val lockKey = "$key:lock"
             val token = UUID.randomUUID().toString()
             val acquired = redisRepository.setIfAbsent(lockKey, token, Duration.ofSeconds(300)) //  5분 TTL
