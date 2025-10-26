@@ -132,13 +132,18 @@ class MemberService(
 
     suspend fun getSearchList(dto: SearchRequestDto): List<SearchResponseDto> {
         val res = clientService.searchStock(dto.keyword!!, dto.page)
-        return res?.result?.items?.map {
-            SearchResponseDto(
-                    code = it.code,
-                    name = it.name,
-                    url = it.url,
-            )
-        } ?: emptyList()
+
+        return res?.result?.items
+                ?.filter {
+                    it.url.startsWith("/worldstock", ignoreCase = true) ||
+                            it.url.startsWith("/domestic", ignoreCase = true)
+                }?.map {
+                    SearchResponseDto(
+                            code = it.code,
+                            name = it.name,
+                            url = it.url,
+                    )
+                } ?: emptyList()
     }
 
     suspend fun getStockDetail(url: String): DetailResponseDto? {
