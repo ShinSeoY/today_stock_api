@@ -19,7 +19,7 @@ class MemberController(
      * 주식 검색
      */
     @PostMapping("/stock/search")
-    suspend fun getSearchList(
+    fun getSearchList(
             @CurrentUser member: Member,
             @RequestBody dto: SearchRequestDto,
     ): ApiResponse<List<SearchResponseDto>> {
@@ -36,7 +36,7 @@ class MemberController(
      * 주식 상세 정보
      */
     @PostMapping("/stock/detail")
-    suspend fun getStockDetail(
+    fun getStockDetail(
             @CurrentUser member: Member,
             @RequestBody dto: SearchRequestDto,
     ): ApiResponse<DetailResponseDto?> {

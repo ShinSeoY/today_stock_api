@@ -130,7 +130,7 @@ class MemberService(
         }
     }
 
-    suspend fun getSearchList(dto: SearchRequestDto): List<SearchResponseDto> {
+    fun getSearchList(dto: SearchRequestDto): List<SearchResponseDto> {
         val res = clientService.searchStock(dto.keyword!!, dto.page)
 
         return res?.result?.items
@@ -146,29 +146,22 @@ class MemberService(
                 } ?: emptyList()
     }
 
-    suspend fun getStockDetail(url: String): DetailResponseDto? {
-        val res = clientService.getStockDetail(url)
-        return if (res.datas.isNotEmpty()) {
-            val detail = res.datas[0]
+    fun getStockDetail(url: String): DetailResponseDto? {
+        val res = clientService.getStockDetail(url) ?: return null
+        val detail = res.datas.firstOrNull() ?: return null
 
-            if (url.contains("domestic")) {
-                DetailResponseDto(
-                        code = detail.itemCode!!,
-                        name = detail.stockName!!,
-                        price = clearPrice(detail.closePrice),
-                        currencyCode = detail.currencyType.code,
-                )
-            } else {
-                DetailResponseDto(
-                        code = detail.reutersCode!!,
-                        name = detail.stockName!!,
-                        price = clearPrice(detail.closePrice),
-                        currencyCode = detail.currencyType.code,
-                )
-            }
+        val code = if (url.contains("domestic")) {
+            detail.itemCode ?: return null
         } else {
-            null
+            detail.reutersCode ?: return null
         }
+
+        return DetailResponseDto(
+                code = code,
+                name = detail.stockName ?: return null,
+                price = clearPrice(detail.closePrice),
+                currencyCode = detail.currencyType.code,
+        )
     }
 
     private fun clearPrice(price: String?): Double {
