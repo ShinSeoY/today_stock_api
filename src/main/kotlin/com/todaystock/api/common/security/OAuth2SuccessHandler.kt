@@ -7,31 +7,40 @@ import jakarta.servlet.http.HttpServletResponse
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.Authentication
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken
+import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler
 import org.springframework.stereotype.Component
 
 @Component
 class OAuth2SuccessHandler(
-        @Value("\${app.frontend.base-url:}")
+        @Value("\${app.frontend.base-url:http://localhost:5173}")
         private val frontendBaseUrl: String,
+        @Value("\${app.cookie.secure:false}")     // 로컬: false, 배포: true
+        private val cookieSecure: Boolean,
+        @Value("\${app.cookie.same-site:Lax}")   // cross-site면 None
+        private val cookieSameSite: String,
         private val jwtUtil: JwtUtil,
 ) : AuthenticationSuccessHandler {
-    override fun onAuthenticationSuccess(
-            request: HttpServletRequest,
-            response: HttpServletResponse,
-            authentication: Authentication,
-    ) {
-        val oauth2User = authentication.principal as org.springframework.security.oauth2.core.user.OAuth2User
 
-        val email = oauth2User.getAttribute<String>("email") ?: "unknown@example.com"
+    override fun onAuthenticationSuccess(req: HttpServletRequest, res: HttpServletResponse, auth: Authentication) {
+        val oauth = auth as OAuth2AuthenticationToken
+        val oAuth2User = auth.principal as OAuth2User
 
-        val oauthToken = authentication as OAuth2AuthenticationToken
-        val registrationId = oauthToken.authorizedClientRegistrationId.uppercase()
+        val email = oAuth2User.getAttribute<String>("email") ?: error("email missing from provider")
+        val provider = AuthProvider.valueOf(oauth.authorizedClientRegistrationId.uppercase())
 
-        val provider = AuthProvider.valueOf(registrationId)
-
+        // 토큰 생성
         val token = jwtUtil.generateToken(email, provider)
+        val maxAge = (jwtUtil.expirationMs / 1000)
+        val sameSite = cookieSameSite  // 로컬: Lax / 크로스사이트-HTTPS: None
+        val secureAttr = if (cookieSecure) "Secure; " else ""
 
-        response.sendRedirect("$frontendBaseUrl/stock-alert?token=$token")
+        // (필요 시 Domain=.example.com 추가)
+        val setCookie =
+                "ACCESS_TOKEN=$token; Path=/; HttpOnly; Max-Age=$maxAge; ${secureAttr}SameSite=$sameSite"
+
+        res.setHeader("Set-Cookie", setCookie)
+        res.sendRedirect("$frontendBaseUrl/stock-alert")
     }
+
 }

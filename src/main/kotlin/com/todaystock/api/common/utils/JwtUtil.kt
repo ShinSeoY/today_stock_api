@@ -12,7 +12,7 @@ class JwtUtil(
         @Value("\${jwt.secret}") private val secretB64: String
 ) {
     private val key = Keys.hmacShaKeyFor(io.jsonwebtoken.io.Decoders.BASE64.decode(secretB64))
-    private val expirationMs = 86_400_000 // 24시간
+    val expirationMs = 86_400_000 // 24시간
 
     fun generateToken(
             email: String,

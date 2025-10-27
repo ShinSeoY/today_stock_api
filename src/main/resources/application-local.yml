@@ -11,7 +11,7 @@ spring:
       password: ${REDIS_PASSWORD_ENV:null}
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     show-sql: false
     properties:
       hibernate:
@@ -75,6 +75,8 @@ jwt:
   secret: ${JWT_SECRET}
 
 app:
+  cookie:
+    secure: false
   frontend:
     base-url: http://localhost:5173
   cors:

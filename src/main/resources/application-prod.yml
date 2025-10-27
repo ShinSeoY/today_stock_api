@@ -76,8 +76,10 @@ jwt:
   secret: ${JWT_SECRET}
 
 app:
+  cookie:
+    secure: true
   cors:
-    allowed-origins: http://localhost:5173,https://www.your-domain.com # todo : 도메인 설정
+    allowed-origins: ${DOMAIN_HOST}
 
 batch:
   size: 500

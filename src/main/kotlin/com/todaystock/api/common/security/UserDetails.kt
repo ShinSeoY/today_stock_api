@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails
 class UserDetails(
     private val email: String,
     private val member: Member,
-    private val roles: List<String> = listOf("USER"),
+    private val roles: List<String> = listOf("ROLE_USER"),
 ) : UserDetails {
     fun getMember(): Member = member
 
