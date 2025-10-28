@@ -22,6 +22,7 @@ class SecurityConfig(
         private val oAuth2SuccessHandler: OAuth2SuccessHandler,
         private val jwtUtil: JwtUtil,
         private val customUserDetailsService: CustomUserDetailsService,
+        private val oAuth2FailureHandler: OAuth2FailureHandler
 ) {
     @Bean
     fun filterChain(
@@ -34,7 +35,7 @@ class SecurityConfig(
                 .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
                 .authorizeHttpRequests {
                     it.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                    it.requestMatchers("/", "/login", "/css/**", "/js/**").permitAll()
+                    it.requestMatchers("/", "/login", "/error", "/css/**", "/js/**").permitAll()
                     it.requestMatchers("/v1/external", "/v1/external/**").permitAll()
                     it.requestMatchers("/actuator/**").permitAll() // kube pod health check
                     it.anyRequest().authenticated()
@@ -50,6 +51,7 @@ class SecurityConfig(
                 .oauth2Login {
                     it.userInfoEndpoint { userInfo -> userInfo.userService(oauth2UserService) }
                             .successHandler(oAuth2SuccessHandler)
+                    it.failureHandler(oAuth2FailureHandler)
                 }
                 .addFilterBefore(
                         JwtAuthenticationFilter(jwtUtil, customUserDetailsService),
