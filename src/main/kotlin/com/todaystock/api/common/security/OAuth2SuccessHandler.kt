@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class OAuth2SuccessHandler(
-        @Value("\${app.frontend.base-url:http://localhost:5173}")
+        @Value("\${app.frontend.base-url:}")
         private val frontendBaseUrl: String,
         @Value("\${app.cookie.secure:false}")     // 로컬: false, 배포: true
         private val cookieSecure: Boolean,
