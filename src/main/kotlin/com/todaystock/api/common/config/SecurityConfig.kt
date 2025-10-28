@@ -36,6 +36,7 @@ class SecurityConfig(
                     it.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                     it.requestMatchers("/", "/login", "/css/**", "/js/**").permitAll()
                     it.requestMatchers("/v1/external", "/v1/external/**").permitAll()
+                    it.requestMatchers("/actuator/health/**", "/actuator/info").permitAll()
                     it.anyRequest().authenticated()
                 }
                 .exceptionHandling {
