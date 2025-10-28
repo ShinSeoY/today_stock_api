@@ -1,3 +1,11 @@
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: when-authorized
 spring:
   datasource:
     url: ${MYSQL_URL_ENV}
