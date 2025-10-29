@@ -4,6 +4,7 @@ import jakarta.servlet.ServletException
 import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.web.authentication.AuthenticationFailureHandler
 import org.springframework.stereotype.Component
@@ -12,7 +13,11 @@ import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
 @Component
-class OAuth2FailureHandler : AuthenticationFailureHandler {
+class OAuth2FailureHandler(
+        @Value("\${spring.profiles.active}")
+        private val currentActiveProfile: String,
+) : AuthenticationFailureHandler {
+
     @Throws(IOException::class, ServletException::class)
     override fun onAuthenticationFailure(
             request: HttpServletRequest,
@@ -37,7 +42,8 @@ class OAuth2FailureHandler : AuthenticationFailureHandler {
 
         // 새 인가 요청으로 리다이렉트
         // prompt=select_account를 넣어 항상 구글 계정 선택창을 띄움
-        val target = "/oauth2/authorization/google?prompt=" +
+        val baseUrl = if (currentActiveProfile == "prod") "/api" else ""
+        val target = "$baseUrl/oauth2/authorization/google?prompt=" +
                 URLEncoder.encode("select_account", StandardCharsets.UTF_8)
         response.status = HttpServletResponse.SC_FOUND
         response.setHeader("Location", target)
