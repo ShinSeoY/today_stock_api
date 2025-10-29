@@ -46,9 +46,8 @@ class RedisRepository(
     fun setIfAbsent(
         key: String,
         value: String,
-        ttl: Duration,
     ): Boolean {
-        return redisTemplate.opsForValue().setIfAbsent(key, value, ttl) ?: false
+        return redisTemplate.opsForValue().setIfAbsent(key, value) ?: false
     }
 
     data class RedisEntry<T>(val key: String, val value: T)
