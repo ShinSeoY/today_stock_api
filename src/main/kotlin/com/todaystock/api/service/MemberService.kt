@@ -92,6 +92,7 @@ class MemberService(
         )
         val key = "todaystock:${member.memberId.email}:${member.memberId.provider}:$code"
         redisRepository.delete(key)
+        redisRepository.delete("$key:lock")
     }
 
     fun disableAlarm(
@@ -108,6 +109,7 @@ class MemberService(
         )
         val key = "todaystock:${member.memberId.email}:${member.memberId.provider}:$code"
         redisRepository.delete(key)
+        redisRepository.delete("$key:lock")
     }
 
     fun bulkUpdateAlarmStatus(alarmIds: List<AlarmId>) {
