@@ -5,31 +5,23 @@ import org.slf4j.LoggerFactory
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.data.redis.core.ScanOptions
 import org.springframework.stereotype.Service
-import java.time.Duration
 
 @Service
 class RedisRepository(
-    private val redisTemplate: RedisTemplate<String, Any>,
-    private val objectMapper: ObjectMapper,
+        private val redisTemplate: RedisTemplate<String, Any>,
+        private val objectMapper: ObjectMapper,
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     // 객체 저장
     fun save(
-        key: String,
-        value: Any,
-    ) {
-        redisTemplate.opsForValue().set(key, value)
-    }
+            key: String,
+            value: Any,
+    ) = redisTemplate.opsForValue().set(key, value)
+
 
     // 객체 조회
-    fun <T> get(
-        key: String,
-        clazz: Class<T>,
-    ): T? {
-        val value = redisTemplate.opsForValue().get(key)
-        return value?.let { clazz.cast(it) }
-    }
+    fun get(key: String) = redisTemplate.opsForValue().get(key)
 
     // 삭제
     fun delete(key: String): Boolean = redisTemplate.delete(key)
@@ -44,8 +36,8 @@ class RedisRepository(
 
     // 키가 없을 때만 저장 (SETNX)
     fun setIfAbsent(
-        key: String,
-        value: String,
+            key: String,
+            value: String,
     ): Boolean {
         return redisTemplate.opsForValue().setIfAbsent(key, value) ?: false
     }
@@ -53,8 +45,8 @@ class RedisRepository(
     data class RedisEntry<T>(val key: String, val value: T)
 
     fun <T : Any> findEntriesByPrefix(
-        prefix: String,
-        clazz: Class<T>,
+            prefix: String,
+            clazz: Class<T>,
     ): Map<String, T> {
         val result = mutableMapOf<String, T>()
         redisTemplate.execute { conn ->
