@@ -26,10 +26,10 @@ class ExternalService(
         if (entries.isEmpty()) return
 
         entries.forEach { (key, alarm) ->
-            println("----/v1/external/alarms/publish 2222")
             val lockKey = "$key:lock"
             val token = UUID.randomUUID().toString()
-            val acquired = redisRepository.setIfAbsent(lockKey, token, Duration.ofSeconds(300)) //  5분 TTL
+            // 키가 없다면 lock 키 생성
+            val acquired = redisRepository.setIfAbsent(lockKey, token)
             // 이미 처리 중(IN_FLIGHT) → 이번 사이클 건너뜀
             if (!acquired) {
                 return@forEach
