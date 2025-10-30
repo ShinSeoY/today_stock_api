@@ -158,17 +158,14 @@ class MemberService(
         val res = clientService.getStockDetail(url) ?: return null
         val detail = res.datas.firstOrNull() ?: return null
 
-        val code = if (url.contains("domestic")) {
-            detail.itemCode ?: return null
-        } else {
-            detail.reutersCode ?: return null
-        }
+        val code = detail.symbolCode ?: ""
+        val name = detail.stockName ?: detail.indexName ?: ""
 
         return DetailResponseDto(
                 code = code,
-                name = detail.stockName ?: return null,
+                name = name,
                 price = clearPrice(detail.closePrice),
-                currencyCode = detail.currencyType.code,
+                currencyCode = detail.currencyType?.code ?: "USD",
         )
     }
 

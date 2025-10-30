@@ -1,25 +1,25 @@
 package com.todaystock.api.dto.response
 
 data class NaverStockSearchResponse(
-    val isSuccess: Boolean? = null,
-    val detailCode: String? = null,
-    val message: String? = null,
-    val result: Result? = null,
+        val isSuccess: Boolean? = null,
+        val detailCode: String? = null,
+        val message: String? = null,
+        val result: Result? = null,
 )
 
 data class Result(
-    val query: String,
-    val totalCount: Int,
-    val items: List<Item>,
+        val query: String,
+        val totalCount: Int,
+        val items: List<Item>,
 //    val tabsCheck: TabsCheck? = null,
 )
 
 data class Item(
-    val code: String,
-    val name: String,
+        val code: String,
+        val name: String,
 //    val typeCode: String? = null,
 //    val typeName: String? = null,
-    val url: String,
+        val url: String,
 //    val reutersCode: String? = null,
 //    val nationCode: String? = null,
 //    val nationName: String? = null,
@@ -35,21 +35,21 @@ data class Item(
 // )
 
 data class PriceComparison(
-    val code: String? = null,
-    val text: String? = null,
-    val name: String? = null,
+        val code: String? = null,
+        val text: String? = null,
+        val name: String? = null,
 )
 
 data class TradeStopType(
-    val code: String? = null,
-    val text: String? = null,
-    val name: String? = null,
+        val code: String? = null,
+        val text: String? = null,
+        val name: String? = null,
 )
 
 data class StockPollingResponse(
-    val pollingInterval: Int,
-    val datas: List<StockData>,
-    val time: String,
+        val pollingInterval: Int,
+        val datas: List<StockData>,
+        val time: String,
 )
 
 // data class DomesticStockPollingResponse(
@@ -59,11 +59,12 @@ data class StockPollingResponse(
 // ) : StockPollingResponse
 
 data class StockData(
-    val itemCode: String? = null,
-    val stockName: String? = null,
+        val itemCode: String? = null,
+        val indexName: String? = null,
+        val stockName: String? = null,
 //    val stockExchangeType: StockExchangeType? = null,
-    val closePrice: String? = null,
-    val reutersCode: String? = null,
+        val closePrice: String? = null,
+        val reutersCode: String? = null,
 //    val compareToPreviousClosePrice: String? = null,
 //    val compareToPreviousPrice: PriceComparison? = null,
 //    val fluctuationsRatio: String? = null,
@@ -79,8 +80,8 @@ data class StockData(
 //    val isinCode: String? = null,
 //    val myDataCode: String? = null,
 //    val stockEndUrl: String? = null,
-//    val symbolCode: String? = null,
-    val currencyType: CurrencyType,
+        val symbolCode: String? = null,
+        val currencyType: CurrencyType?,
 )
 
 // data class WorldStockPollingResponse(
@@ -126,9 +127,9 @@ data class StockData(
 // )
 //
 data class CurrencyType(
-    val code: String,
-    val text: String? = null,
-    val name: String? = null,
+        val code: String,
+        val text: String? = null,
+        val name: String? = null,
 )
 //
 // data class StockExchangeType(
