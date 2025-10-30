@@ -25,5 +25,6 @@ data class AlarmResponseDto(
         val email: String,
         val date: LocalDateTime,
         val currencyCode: String,
-        val enable: Boolean
+        val enable: Boolean,
+        val configHash: String,
 )

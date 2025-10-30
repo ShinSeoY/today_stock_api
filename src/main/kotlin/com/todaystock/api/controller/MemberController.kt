@@ -85,13 +85,13 @@ class MemberController(
     /**
      * 알림 삭제
      */
-    @DeleteMapping("/alarm/{code}")
+    @DeleteMapping("/alarm/{configHash}")
     fun removeAlarm(
             @CurrentUser member: Member,
-            @PathVariable code: String,
+            @PathVariable configHash: String,
     ): ApiResponse<String> {
         return try {
-            memberService.removeAlarm(member, code)
+            memberService.removeAlarm(member, configHash)
             ApiResponse.success("ok")
         } catch (e: Exception) {
             e.printStackTrace()
@@ -102,13 +102,13 @@ class MemberController(
     /**
      * 알림 비활성화
      */
-    @PutMapping("/alarm/{code}")
+    @PutMapping("/alarm/{configHash}")
     fun disableAlarm(
             @CurrentUser member: Member,
-            @PathVariable code: String,
+            @PathVariable configHash: String,
     ): ApiResponse<String> {
         return try {
-            memberService.disableAlarm(member, code)
+            memberService.disableAlarm(member, configHash)
             ApiResponse.success("ok")
         } catch (e: Exception) {
             e.printStackTrace()

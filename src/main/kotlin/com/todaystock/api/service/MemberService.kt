@@ -1,5 +1,6 @@
 package com.todaystock.api.service
 
+import com.todaystock.api.common.utils.CalcUtil
 import com.todaystock.api.dto.request.AlimRequestDto
 import com.todaystock.api.dto.request.SearchRequestDto
 import com.todaystock.api.dto.response.AlarmResponseDto
@@ -16,6 +17,7 @@ class MemberService(
         private val clientService: ClientService,
         private val alarmRepository: AlarmRepository,
         private val redisRepository: RedisRepository,
+        private val calcUtil: CalcUtil
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
@@ -26,29 +28,9 @@ class MemberService(
         val memberEmail = member.memberId.email
         val memberProvider = member.memberId.provider
         val code = dto.stock.code
-
         val calcPrice = dto.calcPrice ?: dto.requestPrice ?: (dto.currentPrice * (1 + dto.percent!! / 100))
-        alarmRepository.save(
-                Alarm(
-                        alarmId =
-                        AlarmId(
-                                memberEmail = memberEmail,
-                                memberProvider = memberProvider,
-                                code = code,
-                        ),
-                        name = dto.stock.name,
-                        currencyCode = dto.stock.currencyCode,
-                        email = dto.requestEmail,
-                        price = calcPrice,
-                        conditionType = ConditionType.valueOf(dto.condition),
-                        url = dto.stock.url,
-                        enable = true,
-                        member = member,
-                ),
-        )
 
-        val key = "todaystock:$memberEmail:$memberProvider:$code"
-        val value =
+        val alarmInfo =
                 AlarmInfo(
                         memberProvider = memberProvider.name,
                         memberEmail = memberEmail,
@@ -59,14 +41,37 @@ class MemberService(
                         requestPrice = calcPrice.toString(),
                         code = dto.stock.code,
                 )
-        redisRepository.save(key, value)
+        val configHash = calcUtil.calcConfigHash(alarmInfo)
+        alarmInfo.configHash = configHash
+        val key = "todaystock:$memberEmail:$memberProvider:$configHash"
+
+        redisRepository.save(key, alarmInfo)
+        alarmRepository.save(
+                Alarm(
+                        alarmId =
+                        AlarmId(
+                                memberEmail = memberEmail,
+                                memberProvider = memberProvider,
+                                configHash = configHash
+                        ),
+                        code = code,
+                        name = dto.stock.name,
+                        currencyCode = dto.stock.currencyCode,
+                        email = dto.requestEmail,
+                        price = calcPrice,
+                        conditionType = ConditionType.valueOf(dto.condition),
+                        url = dto.stock.url,
+                        enable = true,
+                        member = member,
+                ),
+        )
     }
 
     fun getAlarms(member: Member): List<AlarmResponseDto> {
         val res = alarmRepository.findAllByMember_MemberId_EmailAndMember_MemberId_Provider(member.memberId.email, member.memberId.provider)
         return res.map {
             AlarmResponseDto(
-                    code = it.alarmId.code,
+                    code = it.code,
                     url = it.url,
                     name = it.name,
                     price = it.price,
@@ -74,40 +79,41 @@ class MemberService(
                     email = it.email,
                     date = it.createdAt,
                     currencyCode = it.currencyCode,
-                    enable = it.enable
+                    enable = it.enable,
+                    configHash = it.alarmId.configHash
             )
         }
     }
 
     fun removeAlarm(
             member: Member,
-            code: String,
+            configHash: String,
     ) {
         alarmRepository.deleteById(
                 AlarmId(
                         memberEmail = member.memberId.email,
                         memberProvider = member.memberId.provider,
-                        code = code,
+                        configHash = configHash
                 ),
         )
-        val key = "todaystock:${member.memberId.email}:${member.memberId.provider}:$code"
+        val key = "todaystock:${member.memberId.email}:${member.memberId.provider}:$configHash"
         redisRepository.delete(key)
         redisRepository.delete("$key:lock")
     }
 
     fun disableAlarm(
             member: Member,
-            code: String,
+            configHash: String,
     ) {
         alarmRepository.bulkUpdateEnableByIds(
                 enable = false,
                 listOf(AlarmId(
                         memberEmail = member.memberId.email,
                         memberProvider = member.memberId.provider,
-                        code = code,
+                        configHash = configHash,
                 )),
         )
-        val key = "todaystock:${member.memberId.email}:${member.memberId.provider}:$code"
+        val key = "todaystock:${member.memberId.email}:${member.memberId.provider}:$configHash"
         redisRepository.delete(key)
         redisRepository.delete("$key:lock")
     }
@@ -115,7 +121,7 @@ class MemberService(
     fun bulkUpdateAlarmStatus(alarmIds: List<AlarmId>) {
         if (alarmIds.isEmpty()) return
 
-        val keys = alarmIds.map { "todaystock:${it.memberEmail}:${it.memberProvider}:${it.code}" }
+        val keys = alarmIds.map { "todaystock:${it.memberEmail}:${it.memberProvider}:${it.configHash}" }
 
         val successCnt = alarmRepository.bulkUpdateEnableByIds(false, alarmIds)
         logger.info("updated $successCnt alarms status")

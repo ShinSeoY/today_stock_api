@@ -44,7 +44,7 @@ class RedisRepository(
 
     data class RedisEntry<T>(val key: String, val value: T)
 
-    fun <T : Any> findEntriesByPrefix(
+    fun <T : Any> findEntriesByPrefixExcludeLock(
             prefix: String,
             clazz: Class<T>,
     ): Map<String, T> {

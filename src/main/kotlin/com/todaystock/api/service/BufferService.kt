@@ -30,7 +30,7 @@ class BufferService(
                         AlarmId(
                                 memberEmail = it.memberEmail,
                                 memberProvider = AuthProvider.valueOf(it.memberProvider),
-                                code = it.code,
+                                configHash = it.configHash,
                         )
                     },
                     batchSize = batchSize,
