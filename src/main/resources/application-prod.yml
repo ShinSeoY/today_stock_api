@@ -15,7 +15,7 @@ spring:
       password: ${REDIS_PASSWORD_ENV:null}
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     show-sql: false
     properties:
       hibernate:
