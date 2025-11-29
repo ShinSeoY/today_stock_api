@@ -1,5 +1,6 @@
 package com.todaystock.api.service
 
+import com.todaystock.api.dto.response.FailedResponseDto
 import com.todaystock.api.dto.response.SuccessResponseDto
 import com.todaystock.api.entity.AlarmId
 import com.todaystock.api.entity.AuthProvider
@@ -52,5 +53,11 @@ class BufferService(
                 memberService.bulkUpdateAlarmStatus(chunk)
             }
         }
+    }
+
+    fun uploadDLQ(
+            buffer: MutableList<FailedResponseDto>,
+    ) {
+        // todo s3 업로드
     }
 }

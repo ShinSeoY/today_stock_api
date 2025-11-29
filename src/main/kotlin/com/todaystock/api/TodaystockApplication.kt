@@ -1,5 +1,6 @@
 package com.todaystock.api
 
+import com.todaystock.api.dto.response.FailedResponseDto
 import com.todaystock.api.dto.response.SuccessResponseDto
 import com.todaystock.api.service.BufferService
 import kotlinx.coroutines.*
@@ -15,33 +16,50 @@ import org.springframework.stereotype.Component
 
 @Component
 class CommandLineRunnerSample(
-    private val bufferService: BufferService,
-    private val successResponseChannel: Channel<SuccessResponseDto>,
-    @Value("\${batch.size}")
-    private val batchSize: Int,
+        private val bufferService: BufferService,
+        private val successResponseChannel: Channel<SuccessResponseDto>,
+        private val failedResponseChannel: Channel<FailedResponseDto>,
+        @Value("\${batch.size}")
+        private val batchSize: Int,
 ) : CommandLineRunner {
     private val logger = LoggerFactory.getLogger(CommandLineRunner::class.java)
-    private val buffer = mutableListOf<SuccessResponseDto>()
+    private val successBuffer = mutableListOf<SuccessResponseDto>()
+    private val failedBuffer = mutableListOf<FailedResponseDto>()
 
     override fun run(args: Array<String>): Unit =
-        runBlocking {
-            CoroutineScope(Dispatchers.IO).launch {
-                while (isActive) {
-                    val successResponse = successResponseChannel.receive()
-                    buffer.add(successResponse)
+            runBlocking {
+                CoroutineScope(Dispatchers.IO).launch {
+                    while (isActive) {
+                        val successResponse = successResponseChannel.receive()
+                        successBuffer.add(successResponse)
 
-                    if (buffer.size >= batchSize) {
-                        bufferService.flushBuffer(buffer, batchSize)
+                        if (successBuffer.size >= batchSize) {
+                            bufferService.flushBuffer(successBuffer, batchSize)
+                        }
+
+                        val failedResponse = failedResponseChannel.receive()
+                        failedBuffer.add(failedResponse)
+
+                        if (failedBuffer.size >= batchSize) {
+                            bufferService.uploadDLQ(failedBuffer)
+                        }
                     }
                 }
             }
-        }
 
     @Scheduled(fixedRate = 1 * 60 * 1000L)
     fun flushBufferScheduler() {
         logger.info("Starting flush buffer.")
-        if (buffer.isNotEmpty()) {
-            bufferService.flushBuffer(buffer, batchSize)
+        if (successBuffer.isNotEmpty()) {
+            bufferService.flushBuffer(successBuffer, batchSize)
+        }
+    }
+
+    @Scheduled(cron = "0 0 * * * *")
+    fun uploadS3FailedJsonScheduler() {
+        logger.info("Starting upload DLQ to s3.")
+        if (failedBuffer.isNotEmpty()) {
+            bufferService.uploadDLQ(failedBuffer)
         }
     }
 }
